@@ -34,9 +34,11 @@ consolidate: terminated_command_queue
 lines: line
   | lines NEWLINE
   | lines line { cmdlist_concat($1, $2); }
+  ;
 
 line: command_queue NEWLINE
   | terminated_command_queue NEWLINE
+  ;
 
 terminated_command_queue: command_queue SEMICOLON
 

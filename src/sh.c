@@ -1,5 +1,5 @@
-#include "utils.h"
 #include "command.h"
+#include "utils.h"
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <signal.h>
@@ -8,10 +8,8 @@
 
 #define PROMPT "mysh$ "
 
-void flex_scan_str(const char *str, cmdlist_head_t **out);
-void flex_scan_file(FILE *f, cmdlist_head_t **out);
-
-static cmdlist_head_t *out;
+int scan_str(const char *str, cmdlist_head_t **out);
+int scan_file(FILE *f, cmdlist_head_t **out);
 
 static void sigint_handler(int sig) {
 	(void)sig;
@@ -26,61 +24,48 @@ static void sigint_handler(int sig) {
 	history_set_pos(history_length);
 }
 
-static int shell_interactive(void) {
+static int interactive(void) {
 	signal(SIGINT, sigint_handler);
 
 	char *line;
+	int ret = 0;
+	cmdlist_head_t *out = NULL;
 	while ((line = readline(PROMPT)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
-			flex_scan_str(line, &out);
-			cmdlist_tok_t *cmdtok;
-			STAILQ_FOREACH(cmdtok, out, next) {
-				cmd_tok_t *tok;
-				STAILQ_FOREACH(tok, cmdtok->content, next) {
-					printf("%s ", tok->content);
-				}
-				puts("");
-			}
+			if ((ret = scan_str(line, &out)))
+				continue;
 		}
 		free(line);
 	}
 	rl_clear_history();
 
-	return 0;
+	return ret;
 }
 
-static int shell_filemode(const char *path) {
+static int filemode(const char *path) {
 	FILE *f = fopen(path, "r");
 	if (f == NULL) {
 		perror(path);
 		return 1;
 	}
 
-	flex_scan_file(f, &out);
+	cmdlist_head_t *out = NULL;
+	int ret = scan_file(f, &out);
+
 	fclose(f);
-
-	cmdlist_tok_t *cmdtok;
-	STAILQ_FOREACH(cmdtok, out, next) {
-		cmd_tok_t *tok;
-		STAILQ_FOREACH(tok, cmdtok->content, next) {
-			printf("%s ", tok->content);
-		}
-		puts("");
-	}
-
-	return 0;
+	return ret;
 }
 
 int main(int argc, char **argv) {
 	int ret;
 
-	out = NULL;
-
 	if (argc == 1) {
-		ret = shell_interactive();
+		ret = interactive();
+	} else if (argc == 2) {
+		ret = filemode(argv[1]);
 	} else {
-		ret = shell_filemode(argv[1]);
+		ret = 1;
 	}
 
 	return ret;

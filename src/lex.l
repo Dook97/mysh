@@ -19,14 +19,14 @@ BLANK_CHAR [\0- ]
 
 %%
 
-void flex_scan_str(const char *str, cmdlist_head_t **out) {
+int scan_str(const char *str, cmdlist_head_t **out) {
 	YY_BUFFER_STATE bs = yy_scan_string(str);
 	yy_switch_to_buffer(bs);
 	yyparse(out);
 	yy_delete_buffer(bs);
 }
 
-void flex_scan_file(FILE *f, cmdlist_head_t **out) {
+int scan_file(FILE *f, cmdlist_head_t **out) {
 	yyrestart(f);
 	yyparse(out);
 }
