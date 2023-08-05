@@ -24,6 +24,7 @@ static void sigint_handler(int sig) {
 	history_set_pos(history_length);
 }
 
+#ifdef DEBUG
 static void print_cmdlist(cmdlist_head_t *list) {
 	cmdlist_tok_t *cmdtok = NULL;
 	STAILQ_FOREACH(cmdtok, list, next) {
@@ -34,6 +35,7 @@ static void print_cmdlist(cmdlist_head_t *list) {
 		puts("");
 	}
 }
+#endif
 
 static int interactive(void) {
 	signal(SIGINT, sigint_handler);
@@ -47,7 +49,8 @@ static int interactive(void) {
 			if ((ret = scan_str(line, &cmdlist)))
 				continue;
 #ifdef DEBUG
-			print_cmdlist(cmdlist);
+			if (cmdlist != NULL)
+				print_cmdlist(cmdlist);
 #endif
 		}
 		free(line);
@@ -68,7 +71,8 @@ static int filemode(const char *path) {
 	int ret = scan_file(f, &cmdlist);
 
 #ifdef DEBUG
-	print_cmdlist(cmdlist);
+	if (cmdlist != NULL)
+		print_cmdlist(cmdlist);
 #endif
 
 	fclose(f);
@@ -76,15 +80,14 @@ static int filemode(const char *path) {
 }
 
 int main(int argc, char **argv) {
-	int ret;
-
-	if (argc == 1) {
-		ret = interactive();
-	} else if (argc == 2) {
-		ret = filemode(argv[1]);
-	} else {
-		ret = 1;
+	switch (argc) {
+	case 1:
+		return interactive();
+	case 2:
+		return filemode(argv[1]);
+	case 3:
+		// TODO: -c option
+	default:
+		return 1;
 	}
-
-	return ret;
 }
