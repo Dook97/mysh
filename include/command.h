@@ -40,4 +40,7 @@ void cmd_append(cmd_head_t *cmd, char *content);
 /* append a command to a list of commands */
 void cmdlist_append(cmdlist_head_t *list, cmd_head_t *content);
 
+/* concatenate two command lists */
+void cmdlist_concat(cmdlist_head_t *list1, cmdlist_head_t *list2);
+
 #endif

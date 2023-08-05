@@ -34,6 +34,14 @@ static int shell_interactive(void) {
 		if (!str_isblank(line)) {
 			add_history(line);
 			flex_scan_str(line, &out);
+			cmdlist_tok_t *cmdtok;
+			STAILQ_FOREACH(cmdtok, out, next) {
+				cmd_tok_t *tok;
+				STAILQ_FOREACH(tok, cmdtok->content, next) {
+					printf("%s ", tok->content);
+				}
+				puts("");
+			}
 		}
 		free(line);
 	}
@@ -51,6 +59,15 @@ static int shell_filemode(const char *path) {
 
 	flex_scan_file(f, &out);
 	fclose(f);
+
+	cmdlist_tok_t *cmdtok;
+	STAILQ_FOREACH(cmdtok, out, next) {
+		cmd_tok_t *tok;
+		STAILQ_FOREACH(tok, cmdtok->content, next) {
+			printf("%s ", tok->content);
+		}
+		puts("");
+	}
 
 	return 0;
 }

@@ -6,7 +6,7 @@ void yyerror(cmdlist_head_t **out, const char *err);
 int yylex(void);
 %}
 
-/* output parameter */
+/* parser output parameter */
 %parse-param { cmdlist_head_t **out }
 
 %union {
@@ -20,7 +20,7 @@ int yylex(void);
 %token REDIR_IN REDIR_OUT PIPE
 
 %type <command> command
-%type <command_list> command_queue terminated_command_queue consolidate all
+%type <command_list> command_queue terminated_command_queue line lines consolidate
 
 %%
 
@@ -28,7 +28,15 @@ all: consolidate { *out = $1; }
 
 consolidate: terminated_command_queue
   | command_queue
+  | lines
   ;
+
+lines: line
+  | lines NEWLINE
+  | lines line { cmdlist_concat($1, $2); }
+
+line: command_queue NEWLINE
+  | terminated_command_queue NEWLINE
 
 terminated_command_queue: command_queue SEMICOLON
 

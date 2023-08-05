@@ -35,3 +35,8 @@ void cmdlist_append(cmdlist_head_t *list, cmd_head_t *content) {
 	cmdlist_tok_t *tok = make_cmdlist_tok(content);
 	STAILQ_INSERT_TAIL(list, tok, next);
 }
+
+void cmdlist_concat(cmdlist_head_t *list1, cmdlist_head_t *list2) {
+	STAILQ_CONCAT(list1, list2);
+	free(list2);
+}
