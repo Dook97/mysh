@@ -35,7 +35,7 @@ cmdlist_tok_t *make_cmdlist_tok(cmd_head_t *content);
 cmdlist_head_t *make_cmdlist(void);
 
 /* append a token to a command */
-void cmd_append(cmd_head_t *cmd, cmd_tok_t *tok);
+void cmd_append(cmd_head_t *cmd, char *content);
 
 /* append a command to a list of commands */
 void cmdlist_append(cmdlist_head_t *list, cmd_head_t *content);

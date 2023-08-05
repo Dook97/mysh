@@ -26,7 +26,8 @@ cmdlist_head_t *make_cmdlist(void) {
 	return list;
 }
 
-void cmd_append(cmd_head_t *cmd, cmd_tok_t *tok) {
+void cmd_append(cmd_head_t *cmd, char *content) {
+	cmd_tok_t *tok = make_cmd_tok(content);
 	STAILQ_INSERT_TAIL(cmd, tok, next);
 }
 

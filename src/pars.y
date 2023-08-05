@@ -7,12 +7,12 @@ int yylex(void);
 %}
 
 %union {
-	cmd_tok_t *token;
+	char *string;
 	cmd_head_t *command;
 	cmdlist_head_t *command_list;
 }
 
-%token <token> IDENTIFIER
+%token <string> IDENTIFIER
 %token NEWLINE SEMICOLON
 %token REDIR_IN REDIR_OUT PIPE
 

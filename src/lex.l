@@ -14,7 +14,7 @@ BLANK_CHAR [\0- ]
 \n			{ return NEWLINE; }
 "#"[^\n]*		{ /* ignore comments */ }
 {BLANK_CHAR}+		{ /* ignore whitespace */ }
-{IDENTIFIER_CHAR}+	{ yylval.token = make_cmd_tok(yytext); return IDENTIFIER; }
+{IDENTIFIER_CHAR}+	{ yylval.command_token = safe_strdup(yytext); return IDENTIFIER; }
 .			{ fprintf(stderr, "Unknown token: %s\n", yytext); }
 
 %%
