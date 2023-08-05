@@ -4,6 +4,7 @@
 
 void yyerror(cmdlist_head_t **out, const char *err);
 int yylex(void);
+extern int lines;
 %}
 
 /* parser output parameter */
@@ -32,7 +33,6 @@ consolidate: terminated_command_queue
   ;
 
 lines: line
-  | lines NEWLINE
   | lines line { cmdlist_concat($1, $2); }
   ;
 
@@ -53,5 +53,5 @@ command: IDENTIFIER { $$ = make_cmd(); cmd_append($$, $1); }
 %%
 
 void yyerror(cmdlist_head_t **out, const char *err) {
-	fprintf(stderr, "error: %s\n", err);
+	fprintf(stderr, "error:%d: %s\n", lines, err);
 }

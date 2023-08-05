@@ -24,17 +24,31 @@ static void sigint_handler(int sig) {
 	history_set_pos(history_length);
 }
 
+static void print_cmdlist(cmdlist_head_t *list) {
+	cmdlist_tok_t *cmdtok = NULL;
+	STAILQ_FOREACH(cmdtok, list, next) {
+		cmd_tok_t *tok = NULL;
+		STAILQ_FOREACH(tok, cmdtok->content, next) {
+			printf("%s ", tok->content);
+		}
+		puts("");
+	}
+}
+
 static int interactive(void) {
 	signal(SIGINT, sigint_handler);
 
 	char *line;
 	int ret = 0;
-	cmdlist_head_t *out = NULL;
+	cmdlist_head_t *cmdlist = NULL;
 	while ((line = readline(PROMPT)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
-			if ((ret = scan_str(line, &out)))
+			if ((ret = scan_str(line, &cmdlist)))
 				continue;
+#ifdef DEBUG
+			print_cmdlist(cmdlist);
+#endif
 		}
 		free(line);
 	}
@@ -50,8 +64,12 @@ static int filemode(const char *path) {
 		return 1;
 	}
 
-	cmdlist_head_t *out = NULL;
-	int ret = scan_file(f, &out);
+	cmdlist_head_t *cmdlist = NULL;
+	int ret = scan_file(f, &cmdlist);
+
+#ifdef DEBUG
+	print_cmdlist(cmdlist);
+#endif
 
 	fclose(f);
 	return ret;
