@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include "command.h"
 
-void yyerror(const char *s);
+void yyerror(cmdlist_head_t **out, const char *err);
 int yylex(void);
 %}
+
+/* output parameter */
+%parse-param { cmdlist_head_t **out }
 
 %union {
 	char *string;
@@ -17,11 +20,13 @@ int yylex(void);
 %token REDIR_IN REDIR_OUT PIPE
 
 %type <command> command
-%type <command_list> command_queue
+%type <command_list> command_queue terminated_command_queue consolidate all
 
 %%
 
-all: terminated_command_queue
+all: consolidate { *out = $1; }
+
+consolidate: terminated_command_queue
   | command_queue
   ;
 
@@ -37,6 +42,6 @@ command: IDENTIFIER { $$ = make_cmd(); cmd_append($$, $1); }
 
 %%
 
-void yyerror(const char *s) {
-	fprintf(stderr, "error: %s\n", s);
+void yyerror(cmdlist_head_t **out, const char *err) {
+	fprintf(stderr, "error: %s\n", err);
 }

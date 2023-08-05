@@ -14,19 +14,19 @@ BLANK_CHAR [\0- ]
 \n			{ return NEWLINE; }
 "#"[^\n]*		{ /* ignore comments */ }
 {BLANK_CHAR}+		{ /* ignore whitespace */ }
-{IDENTIFIER_CHAR}+	{ yylval.command_token = safe_strdup(yytext); return IDENTIFIER; }
+{IDENTIFIER_CHAR}+	{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
 .			{ fprintf(stderr, "Unknown token: %s\n", yytext); }
 
 %%
 
-void flex_scan_str(const char *str) {
+void flex_scan_str(const char *str, cmdlist_head_t **out) {
 	YY_BUFFER_STATE bs = yy_scan_string(str);
 	yy_switch_to_buffer(bs);
-	yyparse();
+	yyparse(out);
 	yy_delete_buffer(bs);
 }
 
-void flex_scan_file(FILE *f) {
+void flex_scan_file(FILE *f, cmdlist_head_t **out) {
 	yyrestart(f);
-	yyparse();
+	yyparse(out);
 }

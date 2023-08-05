@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "command.h"
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <signal.h>
@@ -7,8 +8,10 @@
 
 #define PROMPT "mysh$ "
 
-int flex_scan_str(const char *str);
-int flex_scan_file(const FILE *f);
+void flex_scan_str(const char *str, cmdlist_head_t **out);
+void flex_scan_file(FILE *f, cmdlist_head_t **out);
+
+static cmdlist_head_t *out;
 
 static void sigint_handler(int sig) {
 	(void)sig;
@@ -30,7 +33,7 @@ static int shell_interactive(void) {
 	while ((line = readline(PROMPT)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
-			flex_scan_str(line);
+			flex_scan_str(line, &out);
 		}
 		free(line);
 	}
@@ -46,7 +49,7 @@ static int shell_filemode(const char *path) {
 		return 1;
 	}
 
-	flex_scan_file(f);
+	flex_scan_file(f, &out);
 	fclose(f);
 
 	return 0;
@@ -54,6 +57,8 @@ static int shell_filemode(const char *path) {
 
 int main(int argc, char **argv) {
 	int ret;
+
+	out = NULL;
 
 	if (argc == 1) {
 		ret = shell_interactive();
