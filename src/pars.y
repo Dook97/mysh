@@ -21,19 +21,17 @@ extern int lines;
 %token REDIR_IN REDIR_OUT PIPE
 
 %type <command> command
-%type <command_list> command_queue terminated_command_queue line lines consolidate
+%type <command_list> command_queue terminated_command_queue line lines
 
 %%
 
-all: consolidate { *out = $1; }
-
-consolidate: terminated_command_queue
+all: terminated_command_queue
   | command_queue
   | lines
   ;
 
 lines: line
-  | lines line { cmdlist_concat($1, $2); }
+  | lines line
   ;
 
 line: command_queue NEWLINE
@@ -42,7 +40,7 @@ line: command_queue NEWLINE
 
 terminated_command_queue: command_queue SEMICOLON
 
-command_queue: command { $$ = make_cmdlist(); cmdlist_append($$, $1); }
+command_queue: command { $$ = *out; cmdlist_append($$, $1); }
   | command_queue SEMICOLON command { cmdlist_append($1, $3); }
   ;
 

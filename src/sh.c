@@ -6,8 +6,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define PROMPT "mysh$ "
-
 int scan_str(const char *str, cmdlist_head_t **out);
 int scan_file(FILE *f, cmdlist_head_t **out);
 
@@ -26,6 +24,9 @@ static void sigint_handler(int sig) {
 
 #ifdef DEBUG
 static void print_cmdlist(cmdlist_head_t *list) {
+	if (list == NULL)
+		return;
+
 	cmdlist_tok_t *cmdtok = NULL;
 	STAILQ_FOREACH(cmdtok, list, next) {
 		cmd_tok_t *tok = NULL;
@@ -39,18 +40,18 @@ static void print_cmdlist(cmdlist_head_t *list) {
 
 static int interactive(void) {
 	signal(SIGINT, sigint_handler);
+	const char *prompt = "mysh$ ";
 
 	char *line;
 	int ret = 0;
 	cmdlist_head_t *cmdlist = NULL;
-	while ((line = readline(PROMPT)) != NULL) {
+	while ((line = readline(prompt)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
 			if ((ret = scan_str(line, &cmdlist)))
 				continue;
 #ifdef DEBUG
-			if (cmdlist != NULL)
-				print_cmdlist(cmdlist);
+			print_cmdlist(cmdlist);
 #endif
 		}
 		free(line);
@@ -71,8 +72,7 @@ static int filemode(const char *path) {
 	int ret = scan_file(f, &cmdlist);
 
 #ifdef DEBUG
-	if (cmdlist != NULL)
-		print_cmdlist(cmdlist);
+	print_cmdlist(cmdlist);
 #endif
 
 	fclose(f);

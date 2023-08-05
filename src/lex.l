@@ -24,6 +24,7 @@ BLANK_CHAR [\0- ]
 int scan_str(const char *str, cmdlist_head_t **out) {
 	YY_BUFFER_STATE bs = yy_scan_string(str);
 	yy_switch_to_buffer(bs);
+	*out = make_cmdlist();
 	int ret = yyparse(out);
 	yy_delete_buffer(bs);
 	return ret;
@@ -31,5 +32,6 @@ int scan_str(const char *str, cmdlist_head_t **out) {
 
 int scan_file(FILE *f, cmdlist_head_t **out) {
 	yyrestart(f);
+	*out = make_cmdlist();
 	return yyparse(out);
 }
