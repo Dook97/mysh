@@ -13,7 +13,7 @@ BLANK_CHAR [\0- ]
 %%
 
 ";"			{ return SEMICOLON; }
-[\n]+			{ lines += strlen(yytext); return NEWLINE; }
+\n			{ ++lines; return NEWLINE; }
 "#"[^\n]*		{ /* ignore comments */ }
 {BLANK_CHAR}+		{ /* ignore whitespace */ }
 {IDENTIFIER_CHAR}+	{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
@@ -21,17 +21,15 @@ BLANK_CHAR [\0- ]
 
 %%
 
-int scan_str(const char *str, cmdlist_head_t **out) {
+int scan_str(const char *str) {
 	YY_BUFFER_STATE bs = yy_scan_string(str);
 	yy_switch_to_buffer(bs);
-	*out = make_cmdlist();
-	int ret = yyparse(out);
+	int ret = yyparse();
 	yy_delete_buffer(bs);
 	return ret;
 }
 
-int scan_file(FILE *f, cmdlist_head_t **out) {
+int scan_file(FILE *f) {
 	yyrestart(f);
-	*out = make_cmdlist();
-	return yyparse(out);
+	return yyparse();
 }

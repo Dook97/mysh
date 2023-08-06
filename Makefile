@@ -1,13 +1,13 @@
 .PHONY: all clean
 
-CC = clang
+CC = cc
 CFLAGS = -I./include -Wall -Wextra
 LDFLAGS = -lreadline -lfl
 
 all: mysh
 
-mysh: src/*.c lex.yy.c pars.tab.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $(CUFLAGS) -o $@ $^
+mysh: src/*.c include/*.h lex.yy.c pars.tab.c
+	$(CC) $(CFLAGS) $(LDFLAGS) $(CUFLAGS) -o $@ $$(find -type f -name '*.c')
 
 lex.yy.c: src/lex.l pars.tab.h
 	flex src/lex.l

@@ -1,19 +1,16 @@
 %{
 #include <stdio.h>
 #include "command.h"
+#include "process.h"
 
-void yyerror(cmdlist_head_t **out, const char *err);
+void yyerror(const char *err);
 int yylex(void);
 extern int lines;
 %}
 
-/* parser output parameter */
-%parse-param { cmdlist_head_t **out }
-
 %union {
 	char *string;
 	cmd_head_t *command;
-	cmdlist_head_t *command_list;
 }
 
 %token <string> IDENTIFIER
@@ -31,6 +28,7 @@ all: terminated_command_queue
 
 lines: line
   | lines line
+  | lines NEWLINE
   ;
 
 line: command_queue NEWLINE
@@ -39,8 +37,8 @@ line: command_queue NEWLINE
 
 terminated_command_queue: command_queue SEMICOLON
 
-command_queue: command { cmdlist_append(*out, $1); }
-  | command_queue SEMICOLON command { cmdlist_append(*out, $3); }
+command_queue: command { exec_cmd($1); }
+  | command_queue SEMICOLON command { exec_cmd($3); }
   ;
 
 command: IDENTIFIER { $$ = make_cmd(); cmd_append($$, $1); }
@@ -49,7 +47,6 @@ command: IDENTIFIER { $$ = make_cmd(); cmd_append($$, $1); }
 
 %%
 
-void yyerror(cmdlist_head_t **out, const char *err) {
+void yyerror(const char *err) {
 	fprintf(stderr, "error:%d: %s\n", lines, err);
-	(void)out;
 }

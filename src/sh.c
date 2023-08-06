@@ -5,9 +5,10 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
-int scan_str(const char *str, cmdlist_head_t **out);
-int scan_file(FILE *f, cmdlist_head_t **out);
+int scan_str(const char *str);
+int scan_file(FILE *f);
 
 static void sigint_handler(int sig) {
 	(void)sig;
@@ -22,37 +23,17 @@ static void sigint_handler(int sig) {
 	history_set_pos(history_length);
 }
 
-#ifdef DEBUG
-static void print_cmdlist(cmdlist_head_t *list) {
-	if (list == NULL)
-		return;
-
-	cmdlist_tok_t *cmdtok = NULL;
-	STAILQ_FOREACH(cmdtok, list, next) {
-		cmd_tok_t *tok = NULL;
-		STAILQ_FOREACH(tok, cmdtok->content, next) {
-			printf("%s ", tok->content);
-		}
-		puts("");
-	}
-}
-#endif
-
 static int interactive(void) {
 	signal(SIGINT, sigint_handler);
 	const char *prompt = "mysh$ ";
 
 	int ret = 0;
 	char *line = NULL;
-	cmdlist_head_t *cmdlist = NULL;
 	while ((line = readline(prompt)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
-			if ((ret = scan_str(line, &cmdlist)))
+			if ((ret = scan_str(line)))
 				continue;
-#ifdef DEBUG
-			print_cmdlist(cmdlist);
-#endif
 		}
 		free(line);
 	}
@@ -68,12 +49,7 @@ static int filemode(const char *path) {
 		return 1;
 	}
 
-	cmdlist_head_t *cmdlist = NULL;
-	int ret = scan_file(f, &cmdlist);
-
-#ifdef DEBUG
-	print_cmdlist(cmdlist);
-#endif
+	int ret = scan_file(f);
 
 	fclose(f);
 	return ret;
@@ -86,14 +62,8 @@ int main(int argc, char **argv) {
 	case 2:
 		return filemode(argv[1]);
 	case 3:
-		if (strcmp("-c", argv[1]) == 0) {
-			cmdlist_head_t *cmdlist = NULL;
-			int ret = scan_str(argv[2], &cmdlist);
-#ifdef DEBUG
-			print_cmdlist(cmdlist);
-#endif
-			return ret;
-		}
+		if (strcmp("-c", argv[1]) == 0)
+			return scan_str(argv[2]);
 		__attribute__((fallthrough));
 	default:
 		fprintf(stderr, "Usage: %s [FILE | -c \"...\"]\n", argv[0]);
