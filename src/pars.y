@@ -21,7 +21,6 @@ extern int lines;
 %token REDIR_IN REDIR_OUT PIPE
 
 %type <command> command
-%type <command_list> command_queue terminated_command_queue line lines
 
 %%
 
@@ -40,8 +39,8 @@ line: command_queue NEWLINE
 
 terminated_command_queue: command_queue SEMICOLON
 
-command_queue: command { $$ = *out; cmdlist_append($$, $1); }
-  | command_queue SEMICOLON command { cmdlist_append($1, $3); }
+command_queue: command { cmdlist_append(*out, $1); }
+  | command_queue SEMICOLON command { cmdlist_append(*out, $3); }
   ;
 
 command: IDENTIFIER { $$ = make_cmd(); cmd_append($$, $1); }
@@ -52,4 +51,5 @@ command: IDENTIFIER { $$ = make_cmd(); cmd_append($$, $1); }
 
 void yyerror(cmdlist_head_t **out, const char *err) {
 	fprintf(stderr, "error:%d: %s\n", lines, err);
+	(void)out;
 }

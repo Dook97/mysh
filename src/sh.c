@@ -42,8 +42,8 @@ static int interactive(void) {
 	signal(SIGINT, sigint_handler);
 	const char *prompt = "mysh$ ";
 
-	char *line;
 	int ret = 0;
+	char *line = NULL;
 	cmdlist_head_t *cmdlist = NULL;
 	while ((line = readline(prompt)) != NULL) {
 		if (!str_isblank(line)) {
@@ -86,8 +86,17 @@ int main(int argc, char **argv) {
 	case 2:
 		return filemode(argv[1]);
 	case 3:
-		// TODO: -c option
+		if (strcmp("-c", argv[1]) == 0) {
+			cmdlist_head_t *cmdlist = NULL;
+			int ret = scan_str(argv[2], &cmdlist);
+#ifdef DEBUG
+			print_cmdlist(cmdlist);
+#endif
+			return ret;
+		}
+		__attribute__((fallthrough));
 	default:
+		fprintf(stderr, "Usage: %s [FILE | -c \"...\"]\n", argv[0]);
 		return 1;
 	}
 }

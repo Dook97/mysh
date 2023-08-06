@@ -1,7 +1,7 @@
 .PHONY: all clean
 
-CC = cc
-CFLAGS = -I./include -Wall -Werror
+CC = clang
+CFLAGS = -I./include -Wall -Wextra
 LDFLAGS = -lreadline -lfl
 
 all: mysh
