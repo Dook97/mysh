@@ -2,7 +2,6 @@
 
 cmd_tok_t *make_cmd_tok(const char *content) {
 	cmd_tok_t *tok = safe_malloc(sizeof(cmd_tok_t));
-	*tok = (cmd_tok_t){0};
 	tok->content = safe_strdup(content);
 	return tok;
 }
@@ -30,7 +29,6 @@ void cmd_append(cmd_head_t *cmd, char *content) {
 
 void cmd_from_toks(cmd_head_t *list, cmd_t *out) {
 	char **toks = TOKS_TO_ARR(cmd_tok_t, list, next, content);
-
 	*out = (cmd_t){
 		.file = toks[0],
 		.argv = toks,

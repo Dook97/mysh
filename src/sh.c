@@ -1,9 +1,12 @@
 #include "utils.h"
+#include <err.h>
+#include <linux/limits.h>
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define PROMPT_BASE "mysh"
 #define PROMPT_BUFSIZE 256
@@ -24,13 +27,14 @@ static void sigint_handler(int sig) {
 	history_set_pos(history_length);
 }
 
-static char *get_prompt(char buf[], int bufsize) {
-	char *prompt = buf;
-	char *pwd = getenv("PWD");
-	int ret = snprintf(buf, bufsize, PROMPT_BASE ":%s$ ", pwd);
-	if (ret == -1 || ret >= bufsize || pwd == NULL)
-		prompt = PROMPT_BASE "$";
-	return prompt;
+static char *get_prompt(char buf[], size_t bufsize) {
+	char getcwd_buf[PATH_MAX];
+	char *pwd = getcwd(getcwd_buf, PATH_MAX);
+	if (pwd == NULL)
+		getcwd_buf[0] = '\0';
+
+	int ret = snprintf(buf, bufsize, PROMPT_BASE ":%s$ ", getcwd_buf);
+	return (ret == -1 || (size_t)ret >= bufsize || pwd == NULL) ? PROMPT_BASE "$" : buf;
 }
 
 static int interactive(void) {
@@ -41,7 +45,8 @@ static int interactive(void) {
 
 	int ret = 0;
 	char *line = NULL;
-	while (prompt = get_prompt(prompt_buf, sizeof(prompt_buf)), (line = readline(prompt)) != NULL) {
+	while (prompt = get_prompt(prompt_buf, sizeof(prompt_buf)),
+	       (line = readline(prompt)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
 			if ((ret = shell_str(line)) != 0)
@@ -57,7 +62,7 @@ static int interactive(void) {
 static int filemode(const char *path) {
 	FILE *f = fopen(path, "r");
 	if (f == NULL) {
-		perror(path);
+		warn("%s", path);
 		return 1;
 	}
 
@@ -78,7 +83,7 @@ int main(int argc, char **argv) {
 			return shell_str(argv[2]);
 		__attribute__((fallthrough));
 	default:
-		fprintf(stderr, "Usage: %s [FILE | -c \"...\"]\n", argv[0]);
+		warnx("Usage: %s [FILE | -c \"...\"]\n", argv[0]);
 		return 1;
 	}
 }

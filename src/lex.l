@@ -1,4 +1,5 @@
 %{
+#include <err.h>
 #include "command.h"
 #include "pars.tab.h"
 
@@ -17,7 +18,7 @@ BLANK_CHAR [\0- ]
 "#"[^\n]*		{ /* ignore comments */ }
 {BLANK_CHAR}+		{ /* ignore whitespace */ }
 {IDENTIFIER_CHAR}+	{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
-.			{ fprintf(stderr, "error:%d: unknown token: %s\n", lines, yytext); }
+.			{ warnx("error:%d: unknown token: %s\n", lines, yytext); }
 
 %%
 

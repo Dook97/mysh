@@ -8,6 +8,11 @@ int shell_cd(cmd_t *cmd) {
 		return 1;
 	case 1:
 		new_path = getenv("HOME");
+		/* same as bash */
+		if (new_path == NULL) {
+			warnx("cd: HOME not set");
+			return 1;
+		}
 		break;
 	case 2:
 		new_path = strcmp(cmd->argv[1], "-") == 0 ? getenv("OLDPWD") : cmd->argv[1];
@@ -48,7 +53,7 @@ int shell_exit(cmd_t *cmd) {
 	int exit_code = 0;
 	switch (cmd->argc) {
 	case 0:
-		warnx("cd: internal shell error");
+		warnx("exit: internal shell error");
 		exit_code = 1;
 		break;
 	case 1:
@@ -61,7 +66,7 @@ int shell_exit(cmd_t *cmd) {
 		errno = 0; // errno is never set 0 by any syscall or library function
 		exit_code = strtol(cmd->argv[1], NULL, 10);
 		if (exit_code < 0 && errno != 0) {
-			warn("strtol");
+			warn("exit: strtol");
 			exit_code = 1;
 		}
 
