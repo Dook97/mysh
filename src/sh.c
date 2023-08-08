@@ -1,14 +1,15 @@
-#include "command.h"
 #include "utils.h"
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <signal.h>
-#include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 
-int scan_str(const char *str);
-int scan_file(FILE *f);
+#define PROMPT_BASE "mysh"
+#define PROMPT_BUFSIZE 256
+
+int shell_str(const char *str);
+int shell_file(FILE *f);
 
 static void sigint_handler(int sig) {
 	(void)sig;
@@ -23,16 +24,27 @@ static void sigint_handler(int sig) {
 	history_set_pos(history_length);
 }
 
+static char *get_prompt(char buf[], int bufsize) {
+	char *prompt = buf;
+	char *pwd = getenv("PWD");
+	int ret = snprintf(buf, bufsize, PROMPT_BASE ":%s$ ", pwd);
+	if (ret == -1 || ret >= bufsize || pwd == NULL)
+		prompt = PROMPT_BASE "$";
+	return prompt;
+}
+
 static int interactive(void) {
 	signal(SIGINT, sigint_handler);
-	const char *prompt = "mysh$ ";
+
+	char prompt_buf[PROMPT_BUFSIZE];
+	char *prompt = get_prompt(prompt_buf, sizeof(prompt_buf));
 
 	int ret = 0;
 	char *line = NULL;
 	while ((line = readline(prompt)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
-			if ((ret = scan_str(line)))
+			if ((ret = shell_str(line)) != 0)
 				continue;
 		}
 		free(line);
@@ -49,7 +61,7 @@ static int filemode(const char *path) {
 		return 1;
 	}
 
-	int ret = scan_file(f);
+	int ret = shell_file(f);
 
 	fclose(f);
 	return ret;
@@ -63,7 +75,7 @@ int main(int argc, char **argv) {
 		return filemode(argv[1]);
 	case 3:
 		if (strcmp("-c", argv[1]) == 0)
-			return scan_str(argv[2]);
+			return shell_str(argv[2]);
 		__attribute__((fallthrough));
 	default:
 		fprintf(stderr, "Usage: %s [FILE | -c \"...\"]\n", argv[0]);

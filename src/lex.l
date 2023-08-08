@@ -21,7 +21,7 @@ BLANK_CHAR [\0- ]
 
 %%
 
-int scan_str(const char *str) {
+int shell_str(const char *str) {
 	YY_BUFFER_STATE bs = yy_scan_string(str);
 	yy_switch_to_buffer(bs);
 	int ret = yyparse();
@@ -29,7 +29,7 @@ int scan_str(const char *str) {
 	return ret;
 }
 
-int scan_file(FILE *f) {
+int shell_file(FILE *f) {
 	yyrestart(f);
 	return yyparse();
 }
