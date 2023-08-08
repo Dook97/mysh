@@ -41,7 +41,7 @@ static int interactive(void) {
 
 	int ret = 0;
 	char *line = NULL;
-	while ((prompt = get_prompt(prompt_buf, sizeof(prompt_buf)), line = readline(prompt)) != NULL) {
+	while (prompt = get_prompt(prompt_buf, sizeof(prompt_buf)), (line = readline(prompt)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
 			if ((ret = shell_str(line)) != 0)

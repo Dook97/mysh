@@ -32,13 +32,13 @@ static int shell_cd(cmd_t *cmd) {
 		goto fail;
 	}
 
-	if (chdir(new_pwd) == -1) {
-		warn("cd: chdir: %s", new_pwd);
+	if (setenv("PWD", new_pwd, 1) == -1 || setenv("OLDPWD", cur_pwd, 1) == -1) {
+		warn("cd: setenv");
 		goto fail;
 	}
 
-	if (setenv("PWD", new_pwd, 1) == -1 || setenv("OLDPWD", cur_pwd, 1) == -1) {
-		warn("cd: setenv");
+	if (chdir(new_pwd) == -1) {
+		warn("cd: chdir: %s", new_pwd);
 		goto fail;
 	}
 
@@ -74,7 +74,7 @@ static int shell_exit(cmd_t *cmd) {
 
 		break;
 	default:
-		warnx("exit: too many arguments\n");
+		warnx("exit: too many arguments");
 		return 1;
 	}
 
