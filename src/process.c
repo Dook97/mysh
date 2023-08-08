@@ -17,38 +17,31 @@ static int shell_cd(cmd_t *cmd) {
 		return 1;
 	}
 
-	int ret = 1;
-	char *cur_pwd = NULL, *new_pwd = NULL;
-	if ((cur_pwd = getcwd(NULL, 0)) == NULL) {
+	char cur_pwd[PATH_MAX], new_pwd[PATH_MAX];
+	if (getcwd(cur_pwd, PATH_MAX) == NULL) {
 		warn("cd: getcwd");
-		goto fail;
+		return 1;
 	}
 
 	if (new_path == NULL)
 		new_path = cur_pwd;
 
-	if ((new_pwd = realpath(new_path, NULL)) == NULL) {
+	if (realpath(new_path, new_pwd) == NULL) {
 		warn("cd: realpath: %s", new_path);
-		goto fail;
+		return 1;
 	}
 
 	if (setenv("PWD", new_pwd, 1) == -1 || setenv("OLDPWD", cur_pwd, 1) == -1) {
 		warn("cd: setenv");
-		goto fail;
+		return 1;
 	}
 
 	if (chdir(new_pwd) == -1) {
 		warn("cd: chdir: %s", new_pwd);
-		goto fail;
+		return 1;
 	}
 
-	ret = 0;
-
-fail:
-	free(cur_pwd);
-	free(new_pwd);
-
-	return ret;
+	return 0;
 }
 
 static int shell_exit(cmd_t *cmd) {
