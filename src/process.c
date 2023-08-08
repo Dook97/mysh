@@ -1,7 +1,6 @@
 #include "process.h"
 
 static int shell_cd(cmd_t *cmd) {
-	errno = 0;
 	char *new_path = NULL;
 	switch (cmd->argc) {
 	case 0:
@@ -54,23 +53,29 @@ fail:
 
 static int shell_exit(cmd_t *cmd) {
 	int exit_code = 0;
-	if (cmd->argc == 2) {
-		char *arg = cmd->argv[1];
-
+	switch (cmd->argc) {
+	case 0:
+		warnx("cd: internal shell error");
+		exit_code = 1;
+		break;
+	case 1:
+		break;
+	case 2:
 		/* emulate bash's behaviour */
-		if (!str_isnum(arg))
-			errx(1, "exit: %s: numeric argument required", arg);
+		if (!str_isnum(cmd->argv[1]))
+			errx(1, "exit: %s: numeric argument required", cmd->argv[1]);
 
 		errno = 0; // errno is never set 0 by any syscall or library function
-		exit_code = strtol(arg, NULL, 10);
-		if (exit_code < 0) {
-			if (errno != 0)
-				warn("strtol");
+		exit_code = strtol(cmd->argv[1], NULL, 10);
+		if (exit_code < 0 && errno != 0) {
+			warn("strtol");
 			exit_code = 1;
 		}
-	} else if (cmd->argc > 2) {
+
+		break;
+	default:
 		warnx("exit: too many arguments\n");
-		exit_code = 1;
+		return 1;
 	}
 
 	exit(exit_code);
