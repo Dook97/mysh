@@ -35,5 +35,6 @@
 void *safe_malloc(size_t size);
 char *safe_strdup(const char *src);
 bool str_isblank(const char *line);
+bool str_isnum(const char *str);
 
 #endif

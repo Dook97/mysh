@@ -6,7 +6,8 @@
 
 typedef struct cmd {
 	char *file;
-	char **args; // NULL terminated arr
+	char **argv; // NULL terminated arr
+	size_t argc;
 	// TODO redirections
 } cmd_t;
 

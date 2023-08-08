@@ -33,6 +33,7 @@ void cmd_from_toks(cmd_head_t *list, cmd_t *out) {
 
 	*out = (cmd_t){
 		.file = toks[0],
-		.args = toks
+		.argv = toks,
+		.argc = STAILQ_LEN(cmd_tok_t, list, next)
 	};
 }

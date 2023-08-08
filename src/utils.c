@@ -25,3 +25,11 @@ bool str_isblank(const char *str) {
 	}
 	return true;
 }
+
+bool str_isnum(const char *str) {
+	for (; *str != '\0'; ++str) {
+		if (!isdigit(*str))
+			return false;
+	}
+	return true;
+}
