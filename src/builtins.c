@@ -5,13 +5,13 @@ int shell_cd(cmd_t *cmd) {
 	switch (cmd->argc) {
 	case 0:
 		warnx("cd: internal shell error");
-		return 1;
+		return SHELL_ERR;
 	case 1:
 		new_path = getenv("HOME");
 		/* same as bash */
 		if (new_path == NULL) {
 			warnx("cd: HOME not set");
-			return 1;
+			return SHELL_ERR;
 		}
 		break;
 	case 2:
@@ -19,13 +19,13 @@ int shell_cd(cmd_t *cmd) {
 		break;
 	default:
 		warnx("cd: too many arguments");
-		return 1;
+		return USER_ERR;
 	}
 
 	char cur_pwd[PATH_MAX], new_pwd[PATH_MAX];
 	if (getcwd(cur_pwd, PATH_MAX) == NULL) {
 		warn("cd: getcwd");
-		return 1;
+		return SHELL_ERR;
 	}
 
 	if (new_path == NULL)
@@ -33,17 +33,18 @@ int shell_cd(cmd_t *cmd) {
 
 	if (realpath(new_path, new_pwd) == NULL) {
 		warn("cd: realpath: %s", new_path);
-		return 1;
+		return SHELL_ERR;
 	}
 
 	if (setenv("PWD", new_pwd, 1) == -1 || setenv("OLDPWD", cur_pwd, 1) == -1) {
 		warn("cd: setenv");
-		return 1;
+		return SHELL_ERR;
 	}
 
+	errno = 0;
 	if (chdir(new_pwd) == -1) {
 		warn("cd: chdir: %s", new_pwd);
-		return 1;
+		return (errno == ELOOP || errno == ENAMETOOLONG) ? SHELL_ERR : USER_ERR;
 	}
 
 	return 0;
@@ -54,26 +55,26 @@ int shell_exit(cmd_t *cmd) {
 	switch (cmd->argc) {
 	case 0:
 		warnx("exit: internal shell error");
-		exit_code = 1;
+		exit_code = SHELL_ERR;
 		break;
 	case 1:
 		break;
 	case 2:
 		/* emulate bash's behaviour */
 		if (!str_isnum(cmd->argv[1]))
-			errx(1, "exit: %s: numeric argument required", cmd->argv[1]);
+			errx(USER_ERR, "exit: %s: numeric argument required", cmd->argv[1]);
 
 		errno = 0; // errno is never set 0 by any syscall or library function
 		exit_code = strtol(cmd->argv[1], NULL, 10);
 		if (exit_code < 0 && errno != 0) {
 			warn("exit: strtol");
-			exit_code = 1;
+			exit_code = errno == EINVAL ? USER_ERR : SHELL_ERR;
 		}
 
 		break;
 	default:
 		warnx("exit: too many arguments");
-		return 1;
+		return USER_ERR;
 	}
 
 	exit(exit_code);

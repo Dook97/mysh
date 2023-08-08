@@ -1,6 +1,7 @@
 #ifndef utils_guard_de8afa52fbaeb5748cb3e963e330713483ce2f3fbc02171c8276638c34505b0c
 #define utils_guard_de8afa52fbaeb5748cb3e963e330713483ce2f3fbc02171c8276638c34505b0c
 
+#include "magic.h"
 #include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>

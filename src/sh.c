@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "magic.h"
 #include <err.h>
 #include <linux/limits.h>
 #include <readline/history.h>
@@ -7,9 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-
-#define PROMPT_BASE "mysh"
-#define PROMPT_BUFSIZE 256
 
 int shell_str(const char *str);
 int shell_file(FILE *f);
@@ -63,7 +61,7 @@ static int filemode(const char *path) {
 	FILE *f = fopen(path, "r");
 	if (f == NULL) {
 		warn("%s", path);
-		return 1;
+		return SHELL_ERR;
 	}
 
 	int ret = shell_file(f);
@@ -84,6 +82,6 @@ int main(int argc, char **argv) {
 		__attribute__((fallthrough));
 	default:
 		warnx("Usage: %s [FILE | -c \"...\"]\n", argv[0]);
-		return 1;
+		return SHELL_ERR;
 	}
 }

@@ -4,7 +4,7 @@ void *safe_malloc(size_t size) {
 	void *ret = malloc(size);
 	if (ret == NULL) {
 		perror("malloc");
-		exit(1);
+		exit(SHELL_ERR);
 	}
 	return ret;
 }
@@ -13,7 +13,7 @@ char *safe_strdup(const char *src) {
 	char *copy = strdup(src);
 	if (copy == NULL) {
 		perror("stdup");
-		exit(1);
+		exit(SHELL_ERR);
 	}
 	return copy;
 }

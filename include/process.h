@@ -3,6 +3,7 @@
 
 #include "builtins.h"
 #include "command.h"
+#include "magic.h"
 #include <err.h>
 #include <errno.h>
 #include <limits.h>
