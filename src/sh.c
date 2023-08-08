@@ -37,11 +37,11 @@ static int interactive(void) {
 	signal(SIGINT, sigint_handler);
 
 	char prompt_buf[PROMPT_BUFSIZE];
-	char *prompt = get_prompt(prompt_buf, sizeof(prompt_buf));
+	char *prompt;
 
 	int ret = 0;
 	char *line = NULL;
-	while ((line = readline(prompt)) != NULL) {
+	while ((prompt = get_prompt(prompt_buf, sizeof(prompt_buf)), line = readline(prompt)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
 			if ((ret = shell_str(line)) != 0)
