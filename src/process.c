@@ -1,7 +1,55 @@
 #include "process.h"
 
 static int shell_cd(cmd_t *cmd) {
-	return 1;
+	errno = 0;
+	char *new_path = NULL;
+	switch (cmd->argc) {
+	case 0:
+		warnx("cd: internal shell error");
+		return 1;
+	case 1:
+		new_path = getenv("HOME");
+		break;
+	case 2:
+		new_path = strcmp(cmd->argv[1], "-") == 0 ? getenv("OLDPWD") : cmd->argv[1];
+		break;
+	default:
+		warnx("cd: too many arguments");
+		return 1;
+	}
+
+	int ret = 1;
+	char *cur_pwd = NULL, *new_pwd = NULL;
+	if ((cur_pwd = getcwd(NULL, 0)) == NULL) {
+		warn("cd: getcwd");
+		goto fail;
+	}
+
+	if (new_path == NULL)
+		new_path = cur_pwd;
+
+	if ((new_pwd = realpath(new_path, NULL)) == NULL) {
+		warn("cd: realpath: %s", new_path);
+		goto fail;
+	}
+
+	if (chdir(new_pwd) == -1) {
+		warn("cd: chdir: %s", new_pwd);
+		goto fail;
+	}
+
+	if (setenv("PWD", new_pwd, 1) == -1 || setenv("OLDPWD", cur_pwd, 1) == -1) {
+		warn("cd: setenv");
+		goto fail;
+	}
+
+	ret = 0;
+
+fail:
+	free(cur_pwd);
+	free(new_pwd);
+
+	return ret;
 }
 
 static int shell_exit(cmd_t *cmd) {
@@ -14,14 +62,14 @@ static int shell_exit(cmd_t *cmd) {
 			errx(1, "exit: %s: numeric argument required", arg);
 
 		errno = 0; // errno is never set 0 by any syscall or library function
-		exit_code = strtol(cmd->argv[1], NULL, 10);
+		exit_code = strtol(arg, NULL, 10);
 		if (exit_code < 0) {
 			if (errno != 0)
 				warn("strtol");
 			exit_code = 1;
 		}
 	} else if (cmd->argc > 2) {
-		fprintf(stderr, "mysh: exit: too many arguments\n");
+		warnx("exit: too many arguments\n");
 		exit_code = 1;
 	}
 

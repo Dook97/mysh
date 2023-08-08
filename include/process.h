@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <limits.h>
 
 void exec_cmd(cmd_head_t *cmd);
 
