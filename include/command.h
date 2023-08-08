@@ -25,6 +25,9 @@ cmd_tok_t *make_cmd_tok(const char *content);
 /* safely allocate and initialize a new command */
 cmd_head_t *make_cmd(void);
 
+/* deallocate cmd_head_t object */
+void free_cmd(cmd_head_t *cmd);
+
 /* append a token to a command */
 void cmd_append(cmd_head_t *cmd, char *content);
 

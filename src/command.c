@@ -13,6 +13,16 @@ cmd_head_t *make_cmd(void) {
 	return cmd;
 }
 
+void free_cmd(cmd_head_t *cmd) {
+	cmd_tok_t *tok = STAILQ_FIRST(cmd);
+	while (tok != NULL) {
+		cmd_tok_t *next = STAILQ_NEXT(tok, next);
+		free(tok->content);
+		free(tok);
+		tok = next;
+	}
+}
+
 void cmd_append(cmd_head_t *cmd, char *content) {
 	cmd_tok_t *tok = make_cmd_tok(content);
 	STAILQ_INSERT_TAIL(cmd, tok, next);
