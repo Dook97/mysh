@@ -5,17 +5,20 @@
 
 void yyerror(const char *err);
 int yylex(void);
-extern int lines;
+extern int yylineno;
+extern char *yytext;
 %}
 
 %union {
 	char *string;
+	char character;
 	cmd_head_t *command;
 }
 
 %token <string> IDENTIFIER
 %token NEWLINE SEMICOLON
-%token REDIR_IN REDIR_OUT PIPE
+%token <character> REDIR
+%token REDIR_APPEND PIPE
 
 %type <command> command
 
@@ -49,5 +52,5 @@ command: IDENTIFIER { $$ = make_cmd(); cmd_append($$, $1); }
 %%
 
 void yyerror(const char *err) {
-	fprintf(stderr, "error:%d: %s\n", lines, err);
+	fprintf(stderr, "error:%d: %s near unexpected token '%s'\n", yylineno, err, yytext);
 }

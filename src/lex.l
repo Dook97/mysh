@@ -4,22 +4,24 @@
 #include "command.h"
 #include "pars.tab.h"
 
-int lines = 1;
+extern int yylineno;
 %}
 
 IDENTIFIER_CHAR ([!-~]{-}[#;])
 BLANK_CHAR ([\0- ]{-}[\n])
 
-%option noyywrap nodefault nounput noinput
+%option noyywrap nodefault nounput noinput yylineno
 
 %%
 
 ";"			{ return SEMICOLON; }
-[\n]			{ ++lines; return NEWLINE; }
+\n			{ return NEWLINE; }
+[<>]			{ yylval.chacter = *yytext; return REDIR; }
+">>"			{ return REDIR_APPEND; }
 "#"[^\n]*		{ /* ignore comments */ }
 {BLANK_CHAR}+		{ /* ignore whitespace */ }
 {IDENTIFIER_CHAR}+	{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
-.			{ warnx("error:%d: unknown token: %s\n", lines, yytext); }
+.			{ warnx("error:%d: unknown token: %s\n", yylineno, yytext); }
 
 %%
 
