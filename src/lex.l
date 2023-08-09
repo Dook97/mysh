@@ -7,7 +7,7 @@
 extern int yylineno;
 %}
 
-IDENTIFIER_CHAR ([!-~]{-}[#;])
+IDENTIFIER_CHAR ([!-~]{-}[#;<>|])
 BLANK_CHAR ([\0- ]{-}[\n])
 
 %option noyywrap nodefault nounput noinput yylineno
@@ -16,8 +16,8 @@ BLANK_CHAR ([\0- ]{-}[\n])
 
 ";"			{ return SEMICOLON; }
 \n			{ return NEWLINE; }
-[<>]			{ yylval.chacter = *yytext; return REDIR; }
-">>"			{ return REDIR_APPEND; }
+">>"			{ yylval.redirect = redir_append; return REDIR; }
+[<>]			{ yylval.redirect = (*yytext == '<') ? redir_in : redir_out; return REDIR; }
 "#"[^\n]*		{ /* ignore comments */ }
 {BLANK_CHAR}+		{ /* ignore whitespace */ }
 {IDENTIFIER_CHAR}+	{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }

@@ -11,14 +11,14 @@ extern char *yytext;
 
 %union {
 	char *string;
-	char character;
-	cmd_head_t *command;
+	enum redir redirect;
+	cmd_t *command;
 }
 
 %token <string> IDENTIFIER
+%token <redirect> REDIR
 %token NEWLINE SEMICOLON
-%token <character> REDIR
-%token REDIR_APPEND PIPE
+%token PIPE
 
 %type <command> command
 
@@ -46,7 +46,9 @@ command_queue: command { exec_cmd($1); }
   ;
 
 command: IDENTIFIER { $$ = make_cmd(); cmd_append($$, $1); }
+  | REDIR IDENTIFIER IDENTIFIER { $$ = make_cmd(); cmd_append($$, $3); set_redir($$, $2, $1); }
   | command IDENTIFIER { cmd_append($1, $2); }
+  | command REDIR IDENTIFIER { set_redir($$, $3, $2); }
   ;
 
 %%

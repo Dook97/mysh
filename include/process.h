@@ -13,6 +13,6 @@
 /* shell exit code */
 extern int sh_exit;
 
-void exec_cmd(cmd_head_t *cmd);
+void exec_cmd(cmd_t *cmd);
 
 #endif
