@@ -11,4 +11,6 @@
 
 #define SIG_EXIT_OFFSET 128
 
+#define OPEN_PERMS 0644
+
 #endif

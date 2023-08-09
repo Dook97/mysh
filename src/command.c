@@ -36,7 +36,7 @@ void cmd_append(cmd_t *cmd, char *content) {
 	STAILQ_INSERT_TAIL(&cmd->toklist, tok, next);
 }
 
-void set_redir(cmd_t *cmd, char *file, enum redir r) {
+void set_redir(cmd_t *cmd, enum redir r, char *file) {
 	switch (r) {
 	case redir_in:
 		if (cmd->in != NULL)

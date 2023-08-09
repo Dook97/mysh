@@ -44,6 +44,6 @@ void cmd_append(cmd_t *cmd, char *content);
 /* get cmd_t from cmd_head_t */
 void cmd_finalize(cmd_t *out);
 
-void set_redir(cmd_t *cmd, char *file, enum redir r);
+void set_redir(cmd_t *cmd, enum redir r, char *file);
 
 #endif
