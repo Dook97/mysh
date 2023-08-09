@@ -36,7 +36,5 @@ void exec_cmd(cmd_t *cmd) {
 		}
 	}
 
-	free_cmd_toklist(&cmd->toklist);
-	free(cmd->argv);
-	free(cmd);
+	free_cmd(cmd);
 }

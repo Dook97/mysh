@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include "command.h"
 #include "pars.tab.h"
-
-extern int yylineno;
 %}
 
 IDENTIFIER_CHAR ([!-~]{-}[#;<>|])
