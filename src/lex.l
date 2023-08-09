@@ -1,5 +1,6 @@
 %{
 #include <err.h>
+#include <stdio.h>
 #include "command.h"
 #include "pars.tab.h"
 
@@ -7,14 +8,14 @@ int lines = 1;
 %}
 
 IDENTIFIER_CHAR ([!-~]{-}[#;])
-BLANK_CHAR [\0- ]
+BLANK_CHAR ([\0- ]{-}[\n])
 
 %option noyywrap nodefault nounput noinput
 
 %%
 
 ";"			{ return SEMICOLON; }
-\n			{ ++lines; return NEWLINE; }
+[\n]			{ ++lines; return NEWLINE; }
 "#"[^\n]*		{ /* ignore comments */ }
 {BLANK_CHAR}+		{ /* ignore whitespace */ }
 {IDENTIFIER_CHAR}+	{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }

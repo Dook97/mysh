@@ -28,11 +28,11 @@ all: terminated_command_queue
 
 lines: line
   | lines line
-  | lines NEWLINE
   ;
 
 line: command_queue NEWLINE
   | terminated_command_queue NEWLINE
+  | NEWLINE
   ;
 
 terminated_command_queue: command_queue SEMICOLON
