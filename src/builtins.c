@@ -47,6 +47,9 @@ int shell_cd(cmd_t *cmd) {
 		return (errno == ELOOP || errno == ENAMETOOLONG) ? SHELL_ERR : USER_ERR;
 	}
 
+	if (strcmp(cmd->argv[1], "-") == 0)
+		fprintf(stderr, "%s\n", new_pwd);
+
 	return 0;
 }
 

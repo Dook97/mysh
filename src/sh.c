@@ -18,6 +18,10 @@ int sh_exit = 0;
 static void sigint_handler(int sig) {
 	(void)sig;
 
+	/* if readline is not currently awaiting input don't do anything */
+	if (rl_done)
+		return;
+
 	/* move readline to a new empty line */
 	rl_crlf();
 	rl_on_new_line();
@@ -54,6 +58,7 @@ static void interactive(void) {
 		}
 		free(line);
 	}
+	fprintf(stderr, "exit\n");
 	rl_clear_history();
 }
 
@@ -78,8 +83,10 @@ int main(int argc, char **argv) {
 		filemode(argv[1]);
 		break;
 	case 3:
-		if (strcmp("-c", argv[1]) == 0)
+		if (strcmp("-c", argv[1]) == 0) {
 			shell_str(argv[2]);
+			break;
+		}
 		__attribute__((fallthrough));
 	default:
 		warnx("Usage: %s [FILE | -c \"...\"]", argv[0]);

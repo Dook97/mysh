@@ -13,7 +13,8 @@ void exec_cmd(cmd_head_t *raw_cmd) {
 		execvp(cmd.file, cmd.argv);
 
 		// if exec was successful we shouldn't ever get here
-		err(SHELL_ERR, "%s", cmd.file);
+		int exit_code = errno == ENOENT ? UNKNOWN_CMD_ERR : SHELL_ERR;
+		err(exit_code, "%s", cmd.file);
 	} else {
 		if (pid == -1) {
 			warn("fork");
