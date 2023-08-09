@@ -5,7 +5,9 @@
 #include "pars.tab.h"
 %}
 
-IDENTIFIER_CHAR ([!-~]{-}[#;<>|])
+%x QUOTED SQUOTED
+
+IDENTIFIER_CHAR ([!-~]{-}[#;<>|"'])
 BLANK_CHAR ([\0- ]{-}[\n])
 
 %option noyywrap nodefault nounput noinput yylineno
@@ -13,12 +15,20 @@ BLANK_CHAR ([\0- ]{-}[\n])
 %%
 
 ";"			{ return SEMICOLON; }
+\"			{ BEGIN QUOTED; }
+\'			{ BEGIN SQUOTED; }
 \n			{ return NEWLINE; }
 ">>"			{ yylval.redirect = redir_append; return REDIR; }
 [<>]			{ yylval.redirect = (*yytext == '<') ? redir_in : redir_out; return REDIR; }
 "#"[^\n]*		{ /* ignore comments */ }
 {BLANK_CHAR}+		{ /* ignore whitespace */ }
 {IDENTIFIER_CHAR}+	{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
+
+<QUOTED>[^"]*		{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
+<QUOTED>\"		{ BEGIN INITIAL; }
+<SQUOTED>[^']*		{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
+<SQUOTED>\'		{ BEGIN INITIAL; }
+
 .			{ warnx("error:%d: unknown token: %s\n", yylineno, yytext); }
 
 %%
