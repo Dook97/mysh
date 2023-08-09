@@ -39,8 +39,6 @@ void exec_cmd(cmd_t *cmd) {
 	pid_t pid;
 	int stat_loc;
 
-	cmd_finalize(cmd);
-
 	builtin *func = NULL;
 	if ((func = get_builtin(cmd)) != NULL) {
 		stat_loc = func(cmd);
