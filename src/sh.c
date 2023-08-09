@@ -93,6 +93,7 @@ int main(int argc, char **argv) {
 	default:
 		warnx("Usage: %s [FILE | -c \"...\"]", argv[0]);
 		sh_exit = USER_ERR;
+		break;
 	}
 
 	return sh_exit;
