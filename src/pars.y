@@ -47,8 +47,8 @@ command_queue: piped_command				{ exec_pipe($1); }
 	| command_queue SEMICOLON piped_command		{ exec_pipe($3); }
 	;
 
-piped_command: command					{ $$ = make_pipe(); cmd_finalize($1); pipe_append($1); }
-	| piped_command PIPE command			{ cmd_finalize($3); pipe_append($3); }
+piped_command: command					{ $$ = make_pipe(); pipe_append($1); }
+	| piped_command PIPE command			{ pipe_append($3); }
 	;
 
 command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }

@@ -61,8 +61,15 @@ void cmd_append(cmd_t *cmd, char *content) {
 	STAILQ_INSERT_TAIL(&cmd->toklist, tok, next);
 }
 
+static void cmd_finalize(cmd_t *cmd) {
+	char **toks = TOKS_TO_ARR(cmd_tok_t, &cmd->toklist, next, content);
+	cmd->file = toks[0];
+	cmd->argv = toks;
+}
+
 void pipe_append(pipe_t *pipe, cmd_t *content) {
 	pipe_tok_t *tok = make_pipe_tok(content);
+	cmd_finalize(content);
 	++pipe->cmd_count;
 	STAILQ_INSERT_TAIL(&pipe->cmds, tok, next);
 }
@@ -84,10 +91,4 @@ void cmd_redir(cmd_t *cmd, enum redir r, char *file) {
 		cmd->append = false;
 		break;
 	}
-}
-
-void cmd_finalize(cmd_t *cmd) {
-	char **toks = TOKS_TO_ARR(cmd_tok_t, &cmd->toklist, next, content);
-	cmd->file = toks[0];
-	cmd->argv = toks;
 }

@@ -54,9 +54,7 @@ void free_pipe(pipe_t *pipe);
 /* append a token to a command */
 void cmd_append(cmd_t *cmd, char *content);
 
-/* prepare cmd_t for use by filling necessary fields */
-void cmd_finalize(cmd_t *out);
-
+/* set command redirection */
 void cmd_redir(cmd_t *cmd, enum redir r, char *file);
 
 #endif
