@@ -6,7 +6,6 @@
 void yyerror(const char *err);
 int yylex(void);
 extern int lines;
-extern int sh_exit;
 %}
 
 %union {
@@ -50,6 +49,5 @@ command: IDENTIFIER { $$ = make_cmd(); cmd_append($$, $1); }
 %%
 
 void yyerror(const char *err) {
-	sh_exit = 1;
 	fprintf(stderr, "error:%d: %s\n", lines, err);
 }

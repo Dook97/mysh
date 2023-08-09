@@ -54,7 +54,7 @@ static void interactive(void) {
 		if (!str_isblank(line)) {
 			add_history(line);
 			if (shell_str(line) != 0)
-				continue;
+				sh_exit = USER_ERR;
 		}
 		free(line);
 	}
@@ -67,9 +67,11 @@ static void filemode(const char *path) {
 	if (f == NULL) {
 		warn("%s", path);
 		sh_exit = USER_ERR;
+		return;
 	}
 
-	shell_file(f);
+	if (shell_file(f) != 0)
+		sh_exit = USER_ERR;
 
 	fclose(f);
 }
