@@ -4,13 +4,13 @@
 #include "command.h"
 #include "magic.h"
 #include <err.h>
+#include <errno.h>
 #include <linux/limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
 
-typedef int (builtin)(cmd_t *cmd);
+typedef int(builtin)(cmd_t *cmd);
 
 int shell_cd(cmd_t *cmd);
 int shell_exit(cmd_t *cmd);

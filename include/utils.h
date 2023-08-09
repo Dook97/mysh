@@ -19,18 +19,18 @@
 		out__;                                                       \
 	})
 
-#define TOKS_TO_ARR(entry_type, head, next_member, content_member)                \
-	({                                                                        \
-		__auto_type safe_head2__ = head;                                  \
-		size_t len__ = STAILQ_LEN(entry_type, safe_head2__, next_member); \
-		char **cmdtoks_arr__ = safe_malloc((len__ + 1) * sizeof(char *)); \
-		entry_type *var__ = STAILQ_FIRST(safe_head2__);                   \
-		for (size_t i__ = 0; i__ < len__; ++i__) {                        \
-			cmdtoks_arr__[i__] = var__->content_member;               \
-			var__ = STAILQ_NEXT(var__, next_member);                  \
-		}                                                                 \
-		cmdtoks_arr__[len__] = NULL;                                      \
-		cmdtoks_arr__;                                                    \
+#define TOKS_TO_ARR(entry_type, head, next_member, content_member, content_type)            \
+	({                                                                                  \
+		__auto_type safe_head2__ = head;                                            \
+		size_t len__ = STAILQ_LEN(entry_type, safe_head2__, next_member);           \
+		content_type *toks_arr__ = safe_malloc((len__ + 1) * sizeof(content_type)); \
+		entry_type *var__ = STAILQ_FIRST(safe_head2__);                             \
+		for (size_t i__ = 0; i__ < len__; ++i__) {                                  \
+			toks_arr__[i__] = var__->content_member;                            \
+			var__ = STAILQ_NEXT(var__, next_member);                            \
+		}                                                                           \
+		toks_arr__[len__] = NULL;                                                   \
+		toks_arr__;                                                                 \
 	})
 
 void *safe_malloc(size_t size);

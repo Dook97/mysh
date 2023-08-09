@@ -12,7 +12,7 @@ extern char *yytext;
 %union {
 	char		*string;
 	cmd_t		*command;
-	pipe_t		*pipe;
+	pipecmd_t	*pipecmd;
 	enum redir	redirect;
 }
 
@@ -21,7 +21,7 @@ extern char *yytext;
 %token			NEWLINE SEMICOLON PIPE
 
 %type	<command>	command redir_only_command
-%type	<pipe>		piped_command
+%type	<pipecmd>	piped_command
 
 %%
 
@@ -43,12 +43,12 @@ line: command_queue NEWLINE
 terminated_command_queue: command_queue SEMICOLON
 	;
 
-command_queue: piped_command				{ exec_pipe($1); }
-	| command_queue SEMICOLON piped_command		{ exec_pipe($3); }
+command_queue: piped_command				{ exec_pipecmd($1); }
+	| command_queue SEMICOLON piped_command		{ exec_pipecmd($3); }
 	;
 
-piped_command: command					{ $$ = make_pipe(); pipe_append($1); }
-	| piped_command PIPE command			{ pipe_append($3); }
+piped_command: command					{ $$ = make_pipecmd(); pipecmd_append($1); }
+	| piped_command PIPE command			{ pipecmd_append($3); }
 	;
 
 command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }

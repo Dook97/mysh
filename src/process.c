@@ -1,5 +1,4 @@
 #include "process.h"
-#include <fcntl.h>
 
 static void set_process_redirs(cmd_t *cmd) {
 	/* replace stdout with redir */
@@ -49,14 +48,16 @@ void exec_cmd(cmd_t *cmd) {
 		// if exec was successful we shouldn't ever get here
 		int exit_code = errno == ENOENT ? UNKNOWN_CMD_ERR : SHELL_ERR;
 		err(exit_code, "%s", cmd->file);
+	} else if (pid == -1) {
+		warn("fork");
 	} else {
-		if (pid == -1) {
-			warn("fork");
-		} else {
-			waitpid(pid, &stat_loc, 0);
-		}
+		waitpid(pid, &stat_loc, 0);
 	}
 
 	sh_exit = get_sh_exit(stat_loc, func != NULL);
 	free_cmd(cmd);
+}
+
+void exec_pipecmd(pipecmd_t *pipecmd) {
+	pipecmd_finalize(pipecmd);
 }
