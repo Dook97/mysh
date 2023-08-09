@@ -1,7 +1,7 @@
 #include "process.h"
 #include <fcntl.h>
 
-static void set_redirs(cmd_t *cmd) {
+static void set_process_redirs(cmd_t *cmd) {
 	/* replace stdout with redir */
 	if (cmd->out != NULL) {
 		if (close(1) == -1)
@@ -24,15 +24,13 @@ static void set_redirs(cmd_t *cmd) {
 static int get_sh_exit(int stat_loc, bool builtin) {
 	if (builtin) {
 		if (stat_loc != -1) // if a builtin returns -1 it means no change to exit code
-			return stat_loc;
-	} else {
-		if (WIFSIGNALED(stat_loc)) {
-			int sig = WTERMSIG(stat_loc);
-			fprintf(stderr, "Killed by signal %d.\n", sig);
-			return sig + SIG_EXIT_OFFSET;
-		} else if (WIFEXITED(stat_loc)) {
-			return WEXITSTATUS(stat_loc);
-		}
+			return sh_exit;
+	} else if (WIFSIGNALED(stat_loc)) {
+		int sig = WTERMSIG(stat_loc);
+		fprintf(stderr, "Killed by signal %d.\n", sig);
+		return sig + SIG_EXIT_OFFSET;
+	} else if (WIFEXITED(stat_loc)) {
+		return WEXITSTATUS(stat_loc);
 	}
 	return sh_exit;
 }
@@ -47,7 +45,7 @@ void exec_cmd(cmd_t *cmd) {
 	if ((func = get_builtin(cmd)) != NULL) {
 		stat_loc = func(cmd);
 	} else if ((pid = fork()) == 0) {
-		set_redirs(cmd);
+		set_process_redirs(cmd);
 		execvp(cmd->file, cmd->argv);
 
 		// if exec was successful we shouldn't ever get here
