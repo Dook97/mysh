@@ -2,8 +2,18 @@ A simple UNIX shell
 
 ========================================================
 
-Final program for the UNIX/Linux Programming in
-C course at MFF UK during winter semester 23/24.
+Final program for the UNIX/Linux Programming in C
+course at MFF UK during winter semester 23/24.
+
+Requires flex and bison to build.
+
+This is a project via which I learn about UNIX systems
+programming. Please don't try to seriously use this.
+You would be disappointed.
+
+TODO:
+  * I/O redirection (<, >, >>)
+  * pipes
 
 ========================================================
 
