@@ -6,5 +6,8 @@
 
 #define SHELL_ERR 1
 #define USER_ERR 1
+#define NOT_IMPLEMENTED_ERR 1
+
+#define SIG_EXIT_OFFSET 127
 
 #endif

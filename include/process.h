@@ -10,6 +10,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+/* shell exit code */
+extern int sh_exit;
+
 void exec_cmd(cmd_head_t *cmd);
 
 #endif

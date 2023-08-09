@@ -32,6 +32,7 @@ void free_cmd(cmd_head_t *cmd);
 /* append a token to a command */
 void cmd_append(cmd_head_t *cmd, char *content);
 
+/* get cmd_t from cmd_head_t */
 void cmd_from_toks(cmd_head_t *list, cmd_t *out);
 
 #endif

@@ -51,7 +51,7 @@ int shell_cd(cmd_t *cmd) {
 }
 
 int shell_exit(cmd_t *cmd) {
-	int exit_code = 0;
+	int exit_code = -1;
 	switch (cmd->argc) {
 	case 0:
 		warnx("exit: internal shell error");
@@ -77,7 +77,7 @@ int shell_exit(cmd_t *cmd) {
 		return USER_ERR;
 	}
 
-	exit(exit_code);
+	exit(exit_code == -1 ? sh_exit : exit_code);
 }
 
 builtin *get_builtin(cmd_t *cmd) {

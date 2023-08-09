@@ -22,6 +22,19 @@ void exec_cmd(cmd_head_t *raw_cmd) {
 		}
 	}
 
+	if (func != NULL) {
+		if (stat_loc != -1) // if a builtin returns -1 it means no change to exit code
+			sh_exit = stat_loc;
+	} else {
+		if (WIFSIGNALED(stat_loc)) {
+			int sig = WTERMSIG(stat_loc);
+			fprintf(stderr, "Killed by signal %d.\n", sig);
+			sh_exit = sig + SIG_EXIT_OFFSET;
+		} else if (WIFEXITED(stat_loc)) {
+			sh_exit = WEXITSTATUS(stat_loc);
+		}
+	}
+
 	free_cmd(raw_cmd);
 	free(cmd.argv);
 }

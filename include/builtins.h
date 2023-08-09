@@ -16,4 +16,6 @@ int shell_cd(cmd_t *cmd);
 int shell_exit(cmd_t *cmd);
 builtin *get_builtin(cmd_t *cmd);
 
+extern int sh_exit;
+
 #endif
