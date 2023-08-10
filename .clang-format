@@ -61,6 +61,7 @@ NamespaceIndentation: None
 
 PointerAlignment: Right
 ReflowComments: true
+SeparateDefinitionBlocks: Always
 SortIncludes: CaseSensitive
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: false

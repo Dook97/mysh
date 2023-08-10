@@ -42,8 +42,13 @@ static cmd_tok_t *make_cmd_tok(const char *content) {
 cmd_t *make_cmd(void) {
 	cmd_t *cmd = safe_malloc(sizeof(cmd_t));
 
-	// TODO: tell clang-format not to do this type of shit
-	*cmd = (cmd_t){.in = NULL, .out = NULL, .argc = 0, .pipefd_in = -1, .pipefd_out = -1};
+	*cmd = (cmd_t){
+		.in = NULL,
+		.out = NULL,
+		.argc = 0,
+		.pipefd_in = -1,
+		.pipefd_out = -1,
+	};
 
 	STAILQ_INIT(&cmd->toklist);
 	return cmd;
