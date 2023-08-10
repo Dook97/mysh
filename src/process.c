@@ -55,17 +55,19 @@ static void set_process_redirs(cmd_t *cmd) {
  */
 static int get_sh_exit(int stat_loc, bool builtin) {
 	/* if a builtin returns -1 it means no change to exit code */
-	if (builtin && stat_loc != BUILTIN_DISCARD_EXIT) {
+	if (builtin && stat_loc != BUILTIN_DISCARD_EXIT)
 		return stat_loc;
-	} else if (WIFSIGNALED(stat_loc)) {
+
+	if (WIFSIGNALED(stat_loc)) {
 		int sig = WTERMSIG(stat_loc);
 		fprintf(stderr, "Killed by signal %d.\n", sig);
 		return sig + SIG_EXIT_OFFSET;
-	} else if (WIFEXITED(stat_loc)) {
-		return WEXITSTATUS(stat_loc);
-	} else {
-		return sh_exit;
 	}
+
+	if (WIFEXITED(stat_loc))
+		return WEXITSTATUS(stat_loc);
+
+	return sh_exit;
 }
 
 /* Execute a simple command.
@@ -99,10 +101,9 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	/* closing these is important because otherwise producer/consumer processes on the other
 	 * side of the pipe will get stuck (also freeing system resources is a good idea lol)
 	 */
-	if (cmd->pipefd_out >= 0)
-		close(cmd->pipefd_out);
-	if (cmd->pipefd_in >= 0)
-		close(cmd->pipefd_in);
+	if ((cmd->pipefd_out != -1 && close(cmd->pipefd_out) == -1)
+	    || (cmd->pipefd_in != -1 && close(cmd->pipefd_in) == -1))
+		warn("close");
 
 	return pid;
 }
