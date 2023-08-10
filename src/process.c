@@ -13,7 +13,21 @@
 /* shell exit code */
 extern int sh_exit;
 
-// TODO: handle close() and dup() errors
+/* helper for set_process_redirs */
+static void fd_replace(const char *file, int replaced, int replacement, int flags, int perms) {
+	if (file != NULL) {
+		if (replacement != -1 && close(replacement) == -1)
+			err(SHELL_ERR, "close");
+		replacement = safe_open(file, flags, perms);
+	}
+
+	if (replacement != -1) {
+		if (dup2(replacement, replaced) == -1)
+			err(SHELL_ERR, "dup2");
+		if (close(replacement) == -1)
+			err(SHELL_ERR, "close");
+	}
+}
 
 /* Set I/O files for a process started from exec_cmd.
  *
@@ -23,27 +37,10 @@ extern int sh_exit;
  * @param cmd Pointer to a struct holding information about the desired configuration.
  */
 static void set_process_redirs(cmd_t *cmd) {
-	/* replace stdout with redir */
-	if (cmd->out != NULL) {
-		close(FD_STDOUT);
-		int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
-		safe_open(cmd->out, flags, OPEN_PERMS);
-	} else if (cmd->pipefd_out >= 0) {
-		close(FD_STDOUT);
-		dup(cmd->pipefd_out);
-	}
+	int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
+	fd_replace(cmd->out, FD_STDOUT, cmd->pipefd_out, flags, OPEN_PERMS);
 
-	/* replace stdin with redir */
-	if (cmd->in != NULL) {
-		close(FD_STDIN);
-		safe_open(cmd->in, O_RDONLY, 0);
-	} else if (cmd->pipefd_in >= 0) {
-		close(FD_STDIN);
-		dup(cmd->pipefd_in);
-	}
-
-	close(cmd->pipefd_out);
-	close(cmd->pipefd_in);
+	fd_replace(cmd->in, FD_STDIN, cmd->pipefd_in, O_RDONLY, 0);
 }
 
 /* Based on the value obtained from either exec_cmd() or wait() yield a proper exit code for the
@@ -107,10 +104,6 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	if (cmd->pipefd_in >= 0)
 		close(cmd->pipefd_in);
 
-	/* invalidating to prevent double-close in free_cmd() */
-	cmd->pipefd_out = FD_INVALID;
-	cmd->pipefd_in = FD_INVALID;
-
 	return pid;
 }
 
@@ -118,7 +111,7 @@ void exec_pipecmd(pipecmd_t *pipecmd) {
 	pipecmd_finalize(pipecmd);
 
 	/* [0] == read, [1] == write */
-	int pipe_fds[2] = { FD_INVALID, FD_INVALID };
+	int pipe_fds[2] = { -1, -1 };
 	for (size_t i = 0; i < pipecmd->cmd_count - 1; ++i) {
 		cmd_t *cur = pipecmd->cmds[i], *next = pipecmd->cmds[i + 1];
 		safe_pipe(pipe_fds);

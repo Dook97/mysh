@@ -39,7 +39,7 @@ char *safe_strdup(const char *src);
 void safe_pipe(int fildes[2]);
 
 /* open() except it kills the program with an err message on failure. */
-void safe_open(const char *file, int flags, int perms);
+int safe_open(const char *file, int flags, int perms);
 
 /* true if for every char c in str isblank(c) returns non-zero. */
 bool str_isblank(const char *str);

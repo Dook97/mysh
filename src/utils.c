@@ -30,9 +30,10 @@ void safe_pipe(int fildes[2]) {
 		err(SHELL_ERR, "pipe");
 }
 
-void safe_open(const char *file, int flags, int perms) {
-	if (open(file, flags, perms) != -1)
-		return;
+int safe_open(const char *file, int flags, int perms) {
+	int fd;
+	if ((fd = open(file, flags, perms)) != -1)
+		return fd;
 
 	int code;
 	switch (errno) {

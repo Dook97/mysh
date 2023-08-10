@@ -18,8 +18,7 @@
  */
 #define OPEN_PERMS 0644
 
-/* invalid file descriptor value */
-#define FD_INVALID -1
+/* common file descriptors */
 #define FD_STDIN 0
 #define FD_STDOUT 1
 #define FD_STDERR 2
