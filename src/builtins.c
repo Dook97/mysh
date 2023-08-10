@@ -1,6 +1,11 @@
 #include "builtins.h"
 
 int shell_cd(cmd_t *cmd) {
+	if (cmd->pipefd_in != -1)
+		close(cmd->pipefd_in);
+	if (cmd->pipefd_out != -1)
+		close(cmd->pipefd_out);
+
 	char *new_path = NULL;
 	switch (cmd->argc) {
 	case 0:
@@ -54,6 +59,11 @@ int shell_cd(cmd_t *cmd) {
 }
 
 int shell_exit(cmd_t *cmd) {
+	if (cmd->pipefd_in != -1)
+		close(cmd->pipefd_in);
+	if (cmd->pipefd_out != -1)
+		close(cmd->pipefd_out);
+
 	int exit_code = -1;
 	switch (cmd->argc) {
 	case 0:

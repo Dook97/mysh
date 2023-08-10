@@ -10,50 +10,56 @@ extern char *yytext;
 %}
 
 %union {
-	char *string;
-	enum redir redirect;
-	cmd_t *command;
+	char		*string;
+	cmd_t		*command;
+	pipecmd_t	*pipecmd;
+	enum redir	redirect;
 }
 
-%token <string> IDENTIFIER
-%token <redirect> REDIR
-%token NEWLINE SEMICOLON
-%token PIPE
+%token	<string>	IDENTIFIER
+%token	<redirect>	REDIR
+%token			NEWLINE SEMICOLON PIPE
 
-%type <command> command redir_only_command
+%type	<command>	command redir_only_command
+%type	<pipecmd>	piped_command
 
 %%
 
 all: /* empty input */
-  | terminated_command_queue
-  | command_queue
-  | lines
-  ;
+	| terminated_command_queue
+	| command_queue
+	| lines
+	;
 
 lines: line
-  | lines line
-  ;
+	| lines line
+	;
 
 line: command_queue NEWLINE
-  | terminated_command_queue NEWLINE
-  | NEWLINE
-  ;
+	| terminated_command_queue NEWLINE
+	| NEWLINE
+	;
 
 terminated_command_queue: command_queue SEMICOLON
+	;
 
-command_queue: command { exec_cmd($1); }
-  | command_queue SEMICOLON command { exec_cmd($3); }
-  ;
+command_queue: piped_command				{ exec_pipecmd($1); }
+	| command_queue SEMICOLON piped_command		{ exec_pipecmd($3); }
+	;
 
-command: IDENTIFIER { $$ = make_cmd(); cmd_append($$, $1); }
-  | redir_only_command IDENTIFIER { cmd_append($$, $2); }
-  | command IDENTIFIER { cmd_append($1, $2); }
-  | command REDIR IDENTIFIER { set_redir($$, $2, $3); }
-  ;
+piped_command: command					{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
+	| piped_command PIPE command			{ pipecmd_append($$, $3); }
+	;
 
-redir_only_command: REDIR IDENTIFIER { $$ = make_cmd(); set_redir($$, $1, $2); }
-  | redir_only_command REDIR IDENTIFIER { set_redir($$, $2, $3); }
-  ;
+command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }
+	| redir_only_command IDENTIFIER			{ cmd_append($$, $2); }
+	| command IDENTIFIER				{ cmd_append($1, $2); }
+	| command REDIR IDENTIFIER			{ cmd_redir($$, $2, $3); }
+	;
+
+redir_only_command: REDIR IDENTIFIER			{ $$ = make_cmd(); cmd_redir($$, $1, $2); }
+	| redir_only_command REDIR IDENTIFIER		{ cmd_redir($$, $2, $3); }
+	;
 
 %%
 

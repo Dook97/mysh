@@ -15,10 +15,11 @@ BLANK_CHAR ([\0- ]{-}[\n])
 %%
 
 ";"			{ return SEMICOLON; }
+"|"			{ return PIPE; }
 \"			{ BEGIN QUOTED; }
 \n			{ return NEWLINE; }
-">>"			{ yylval.redirect = redir_append; return REDIR; }
-[<>]			{ yylval.redirect = (*yytext == '<') ? redir_in : redir_out; return REDIR; }
+">>"			{ yylval.redirect = REDIR_APPEND; return REDIR; }
+[<>]			{ yylval.redirect = (*yytext == '<') ? REDIR_IN : REDIR_OUT; return REDIR; }
 "#"[^\n]*		{ /* ignore comments */ }
 {BLANK_CHAR}+		{ /* ignore whitespace */ }
 {IDENTIFIER_CHAR}+	{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
