@@ -6,18 +6,23 @@
 
 /* exit codes */
 #define USER_ERR 1
-#define SHELL_ERR 1
+#define SHELL_ERR 2
 #define UNKNOWN_CMD_ERR 127
-#define NOT_IMPLEMENTED_ERR 1
+#define NOT_IMPLEMENTED_ERR 255
 
 /* if a process is killed by a signal use this value + SIGVAL to determine shell exit code */
 #define SIG_EXIT_OFFSET 128
 
-/* permission bits used by the shell when creating new files */
+/* permission bits used by the shell when creating new files
+ * rw-r--r--
+ */
 #define OPEN_PERMS 0644
 
 /* invalid file descriptor value */
 #define FD_INVALID -1
+#define FD_STDIN 0
+#define FD_STDOUT 1
+#define FD_STDERR 2
 
 /* value returned by a shell builtin signalling that the exit code of the shell should remained
  * unchanged after the builtin's execution

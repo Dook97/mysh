@@ -20,7 +20,7 @@ extern char *yytext;
 %token	<redirect>	REDIR				/* <, >, >> */
 %token			NEWLINE SEMICOLON PIPE
 
-%type	<command>	command redir_only_command	/* for commands which start with a redirect */
+%type	<command>	command redir_only_command
 %type	<pipecmd>	piped_command
 
 %%
@@ -57,6 +57,7 @@ command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }
 	| command REDIR IDENTIFIER			{ cmd_redir($$, $2, $3); }
 	;
 
+/* for commands which start with a redirect */
 redir_only_command: REDIR IDENTIFIER			{ $$ = make_cmd(); cmd_redir($$, $1, $2); }
 	| redir_only_command REDIR IDENTIFIER		{ cmd_redir($$, $2, $3); }
 	;

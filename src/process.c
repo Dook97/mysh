@@ -25,7 +25,7 @@ extern int sh_exit;
 static void set_process_redirs(cmd_t *cmd) {
 	/* replace stdout with redir */
 	if (cmd->out != NULL) {
-		close(1);
+		close(FD_STDOUT);
 		int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
 		safe_open(cmd->out, flags, OPEN_PERMS);
 	} else if (cmd->pipefd_out >= 0) {
@@ -35,10 +35,10 @@ static void set_process_redirs(cmd_t *cmd) {
 
 	/* replace stdin with redir */
 	if (cmd->in != NULL) {
-		close(0);
+		close(FD_STDIN);
 		safe_open(cmd->in, O_RDONLY, 0);
 	} else if (cmd->pipefd_in >= 0) {
-		close(0);
+		close(FD_STDIN);
 		dup(cmd->pipefd_in);
 	}
 
@@ -102,8 +102,10 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	/* closing these is important because otherwise producer/consumer processes on the other
 	 * side of the pipe will get stuck (also freeing system resources is a good idea lol)
 	 */
-	close(cmd->pipefd_out);
-	close(cmd->pipefd_in);
+	if (cmd->pipefd_out >= 0)
+		close(cmd->pipefd_out);
+	if (cmd->pipefd_in >= 0)
+		close(cmd->pipefd_in);
 
 	/* invalidating to prevent double-close in free_cmd() */
 	cmd->pipefd_out = FD_INVALID;
