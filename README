@@ -12,13 +12,19 @@ Supports:
   * the three basic redirections <, >, >>
       -> not supported: 2>, >&2, etc
   * semicolons to separate commands
-  * pipes
   * rudimentary quoting like so: "..."
       -> no support for escaping though
+  * pipes
+      -> echo I hate UNIX | sed "s/hate/♥/" | cowsay
 
-This is a project via which I learn about UNIX systems
-programming. Please don't try to seriously use this.
-You would be disappointed.
+             ____________
+            < I ♥ UNIX >
+             ------------
+                    \   ^__^
+                     \  (oo)\_______
+                        (__)\       )\/\
+                            ||----w |
+                            ||     ||
 
 ========================================================
 
