@@ -57,6 +57,7 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 
 	close(cmd->pipefd_out);
 	close(cmd->pipefd_in);
+	/* invalidating to prevent double-close in free_cmd() */
 	cmd->pipefd_out = -1;
 	cmd->pipefd_in = -1;
 
