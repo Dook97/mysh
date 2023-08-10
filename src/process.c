@@ -28,7 +28,7 @@ static void set_process_redirs(cmd_t *cmd) {
 static int get_sh_exit(int stat_loc, bool builtin) {
 	if (builtin) {
 		if (stat_loc != -1) // if a builtin returns -1 it means no change to exit code
-			return sh_exit;
+			return stat_loc;
 	} else if (WIFSIGNALED(stat_loc)) {
 		int sig = WTERMSIG(stat_loc);
 		fprintf(stderr, "Killed by signal %d.\n", sig);
@@ -39,13 +39,13 @@ static int get_sh_exit(int stat_loc, bool builtin) {
 	return sh_exit;
 }
 
-static pid_t exec_cmd(cmd_t *cmd) {
+static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	pid_t pid;
 
 	builtin *func = NULL;
 	if ((func = get_builtin(cmd)) != NULL) {
 		pid = 0;
-		func(cmd); // TODO: figure out how to get builtins' exit codes out
+		*stat_loc = func(cmd);
 	} else if ((pid = fork()) == 0) {
 		set_process_redirs(cmd);
 		execvp(cmd->file, cmd->argv);
@@ -67,10 +67,10 @@ void exec_pipecmd(pipecmd_t *pipecmd) {
 	pipecmd_finalize(pipecmd);
 
 	pid_t pid;
-	for (size_t i = 0; i < pipecmd->cmd_count; ++i)
-		pid = exec_cmd(pipecmd->cmds[i]);
-
 	int stat_loc = 0;
+	for (size_t i = 0; i < pipecmd->cmd_count; ++i)
+		pid = exec_cmd(pipecmd->cmds[i], &stat_loc);
+
 	if (pid > 0)
 		waitpid(pid, &stat_loc, 0);
 
