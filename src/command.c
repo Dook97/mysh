@@ -19,11 +19,6 @@ static void free_cmd(cmd_t *cmd) {
 		tok = next;
 	}
 
-	if (cmd->pipefd_in >= 0)
-		close(cmd->pipefd_in);
-	if (cmd->pipefd_out >= 0)
-		close(cmd->pipefd_out);
-
 	free(cmd->out);
 	free(cmd->in);
 	free(cmd->argv);
@@ -84,16 +79,6 @@ void pipecmd_finalize(pipecmd_t *pipe) {
 }
 
 void pipecmd_append(pipecmd_t *pipe, cmd_t *content) {
-	if (pipe->cmd_count >= 1) {
-		/* [0] = read, [1] = write */
-		int fildes[2];
-		safe_pipe(fildes);
-		cmd_t *prev = TAILQ_LAST(&pipe->toklist, pipe_head)->content;
-
-		prev->pipefd_out = fildes[1];
-		content->pipefd_in = fildes[0];
-	}
-
 	cmd_finalize(content);
 	pipecmd_tok_t *tok = make_pipecmd_tok(content);
 

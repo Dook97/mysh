@@ -117,10 +117,17 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 void exec_pipecmd(pipecmd_t *pipecmd) {
 	pipecmd_finalize(pipecmd);
 
-	pid_t pid;
+	/* [0] == read, [1] == write */
+	int pipe_fds[2] = { FD_INVALID, FD_INVALID };
+	for (size_t i = 0; i < pipecmd->cmd_count - 1; ++i) {
+		cmd_t *cur = pipecmd->cmds[i], *next = pipecmd->cmds[i + 1];
+		safe_pipe(pipe_fds);
+		cur->pipefd_out = pipe_fds[1];
+		next->pipefd_in = pipe_fds[0];
+		exec_cmd(cur, NULL);
+	}
 	int stat_loc = 0;
-	for (size_t i = 0; i < pipecmd->cmd_count; ++i)
-		pid = exec_cmd(pipecmd->cmds[i], &stat_loc);
+	pid_t pid = exec_cmd(pipecmd->cmds[pipecmd->cmd_count - 1], &stat_loc);
 
 	/* wait for the last command and get its exit code */
 	if (pid > 0)
