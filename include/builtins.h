@@ -5,8 +5,28 @@
 
 typedef int(builtin)(cmd_t *cmd);
 
+/* Shell builtin command to change the PWD.
+ *
+ * @param cmd Object holding arguments etc.
+ * @return exit code
+ * @retval -1 Shell exit code is to remain unchanged.
+ */
 int shell_cd(cmd_t *cmd);
+
+/* Shell builtin command to exit the shell.
+ *
+ * @param cmd Object holding arguments etc.
+ * @return exit code
+ * @retval -1 Shell exit code is to remain unchanged.
+ */
 int shell_exit(cmd_t *cmd);
+
+/* Get a pointer to a function representing a builtin command.
+ *
+ * @param cmd Object holding information about a command.
+ * @return Pointer to matching builtin command function.
+ * @retval NULL if no builtin matches the command.
+ */
 builtin *get_builtin(cmd_t *cmd);
 
 #endif

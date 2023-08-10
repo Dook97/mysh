@@ -16,11 +16,11 @@ extern char *yytext;
 	enum redir	redirect;
 }
 
-%token	<string>	IDENTIFIER
-%token	<redirect>	REDIR
+%token	<string>	IDENTIFIER			/* commands, options, arguments */
+%token	<redirect>	REDIR				/* <, >, >> */
 %token			NEWLINE SEMICOLON PIPE
 
-%type	<command>	command redir_only_command
+%type	<command>	command redir_only_command	/* for commands which start with a redirect */
 %type	<pipecmd>	piped_command
 
 %%

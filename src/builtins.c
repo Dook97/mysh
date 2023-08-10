@@ -9,9 +9,11 @@
 #include <string.h>
 #include <unistd.h>
 
+/* shell exit code */
 extern int sh_exit;
 
 int shell_cd(cmd_t *cmd) {
+	/* we're not expecting any input, nor non-error output */
 	if (cmd->pipefd_in != -1)
 		close(cmd->pipefd_in);
 	if (cmd->pipefd_out != -1)
@@ -63,6 +65,7 @@ int shell_cd(cmd_t *cmd) {
 		return (errno == ELOOP || errno == ENAMETOOLONG) ? SHELL_ERR : USER_ERR;
 	}
 
+	/* notify user of his new PWD if he used "cd -" */
 	if (strcmp(cmd->argv[1], "-") == 0)
 		fprintf(stderr, "%s\n", new_pwd);
 
@@ -70,6 +73,7 @@ int shell_cd(cmd_t *cmd) {
 }
 
 int shell_exit(cmd_t *cmd) {
+	/* we're not expecting any input, nor non-error output */
 	if (cmd->pipefd_in != -1)
 		close(cmd->pipefd_in);
 	if (cmd->pipefd_out != -1)

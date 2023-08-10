@@ -3,6 +3,10 @@
 
 #include "command.h"
 
+/* Execute a piped command.
+ *
+ * @param pipecmd Pointer to a structure representing the command.
+ */
 void exec_pipecmd(pipecmd_t *pipecmd);
 
 #endif

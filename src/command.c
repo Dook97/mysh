@@ -2,12 +2,14 @@
 #include "utils.h"
 #include <stdlib.h>
 
+/* Once all tokens are appended, prepares cmd_t object for execution. */
 static void cmd_finalize(cmd_t *cmd) {
 	char **toks = TOKS_TO_ARR(cmd_tok_t, &cmd->toklist, next, content, char *);
 	cmd->file = toks[0];
 	cmd->argv = toks;
 }
 
+/* Deallocates cmd_t and everything within it that needs deallocating. */
 static void free_cmd(cmd_t *cmd) {
 	cmd_tok_t *tok = TAILQ_FIRST(&cmd->toklist);
 	while (tok != NULL) {
@@ -17,19 +19,18 @@ static void free_cmd(cmd_t *cmd) {
 		tok = next;
 	}
 
-	free(cmd->out);
-	free(cmd->in);
-	free(cmd->argv);
-
 	if (cmd->pipefd_in >= 0)
 		close(cmd->pipefd_in);
 	if (cmd->pipefd_out >= 0)
 		close(cmd->pipefd_out);
 
+	free(cmd->out);
+	free(cmd->in);
+	free(cmd->argv);
 	free(cmd);
 }
 
-/* safely allocate and initialize a new pipe_tok_t */
+/* Safely allocate and initialize a new pipe_tok_t. */
 static pipecmd_tok_t *make_pipecmd_tok(cmd_t *content) {
 	pipecmd_tok_t *tok = safe_malloc(sizeof(pipecmd_tok_t));
 	tok->content = content;
@@ -46,7 +47,7 @@ static cmd_tok_t *make_cmd_tok(const char *content) {
 cmd_t *make_cmd(void) {
 	cmd_t *cmd = safe_malloc(sizeof(cmd_t));
 
-	// TODO: tell clang-format to not do this type of shit
+	// TODO: tell clang-format not to do this type of shit
 	*cmd = (cmd_t){.in = NULL, .out = NULL, .argc = 0, .pipefd_in = -1, .pipefd_out = -1};
 
 	TAILQ_INIT(&cmd->toklist);

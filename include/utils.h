@@ -1,9 +1,10 @@
 #ifndef utils_guard_de8afa52fbaeb5748cb3e963e330713483ce2f3fbc02171c8276638c34505b0c
 #define utils_guard_de8afa52fbaeb5748cb3e963e330713483ce2f3fbc02171c8276638c34505b0c
 
-#include <unistd.h>
 #include <stdbool.h>
+#include <unistd.h>
 
+/* get number of elements in a TAILQ instance */
 #define TAILQ_LEN(entry_type, head, next_member)                            \
 	({                                                                  \
 		__auto_type safe_head__ = head;                             \
@@ -13,6 +14,7 @@
 		out__;                                                      \
 	})
 
+/* convert TAILQ to an array */
 #define TOKS_TO_ARR(entry_type, head, next_member, content_member, content_type)            \
 	({                                                                                  \
 		__auto_type safe_head2__ = head;                                            \
@@ -27,11 +29,22 @@
 		toks_arr__;                                                                 \
 	})
 
+/* malloc() except it kills the program with an err message on failure. */
 void *safe_malloc(size_t size);
+
+/* strdup() except it kills the program with an err message on failure. */
 char *safe_strdup(const char *src);
-bool str_isblank(const char *line);
-bool str_isnum(const char *str);
+
+/* pipe() except it kills the program with an err message on failure. */
 void safe_pipe(int fildes[2]);
+
+/* open() except it kills the program with an err message on failure. */
 void safe_open(const char *file, int flags, int perms);
+
+/* true if for every char c in str isblank(c) returns non-zero. */
+bool str_isblank(const char *str);
+
+/* true if for every char c in str isdigit(c) returns non-zero. */
+bool str_isnum(const char *str);
 
 #endif

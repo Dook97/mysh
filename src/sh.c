@@ -9,7 +9,9 @@
 #include <readline/history.h>
 #include <readline/readline.h>
 
+/* run shell over an in-memory string */
 int shell_str(const char *str);
+/* run shell over a file */
 int shell_file(FILE *f);
 
 /* shell exit code */
@@ -32,6 +34,15 @@ static void sigint_handler(int sig) {
 	history_set_pos(history_length);
 }
 
+/* Get a shell prompt string.
+ *
+ * If the path to PWD isn't too long it will be displayed in the prompt, otherwise a shortened
+ * version will be presented.
+ *
+ * @param buf A buffer which may store the prompt.
+ * @param bufsize The size of the buffer.
+ * @return A pointer to the prompt, which may or may not be the address of the buffer.
+ */
 static char *get_prompt(char buf[], size_t bufsize) {
 	char getcwd_buf[PATH_MAX];
 	char *pwd = getcwd(getcwd_buf, PATH_MAX);
@@ -42,6 +53,7 @@ static char *get_prompt(char buf[], size_t bufsize) {
 	return (ret == -1 || (size_t)ret >= bufsize || pwd == NULL) ? PROMPT_BASE "$" : buf;
 }
 
+/* Run the shell in interactive mode. */
 static void interactive(void) {
 	signal(SIGINT, sigint_handler);
 
@@ -49,8 +61,7 @@ static void interactive(void) {
 	char *prompt;
 
 	char *line = NULL;
-	while (prompt = get_prompt(prompt_buf, sizeof(prompt_buf)),
-	       (line = readline(prompt)) != NULL) {
+	while (prompt = get_prompt(prompt_buf, sizeof(prompt_buf)), (line = readline(prompt)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
 			if (shell_str(line) != 0)
@@ -62,6 +73,10 @@ static void interactive(void) {
 	rl_clear_history();
 }
 
+/* Run the shell using a file for input.
+ *
+ * @param path The path to the file to be executed by the shell.
+ */
 static void filemode(const char *path) {
 	FILE *f = fopen(path, "r");
 	if (f == NULL) {
@@ -85,6 +100,7 @@ int main(int argc, char **argv) {
 		filemode(argv[1]);
 		break;
 	case 3:
+		/* -c option works same as bash */
 		if (strcmp("-c", argv[1]) == 0) {
 			shell_str(argv[2]);
 			break;
