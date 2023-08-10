@@ -14,6 +14,6 @@
 /* shell exit code */
 extern int sh_exit;
 
-void exec_cmd(cmd_t *cmd);
+void exec_pipecmd(pipecmd_t *pipecmd);
 
 #endif

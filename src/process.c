@@ -1,23 +1,28 @@
 #include "process.h"
 
+// TODO: handle close() and dup() errors
 static void set_process_redirs(cmd_t *cmd) {
 	/* replace stdout with redir */
 	if (cmd->out != NULL) {
-		if (close(1) == -1)
-			err(SHELL_ERR, "close");
-
+		close(1);
 		int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
-		if (open(cmd->out, flags, OPEN_PERMS) == -1)
-			err(SHELL_ERR, "open: %s", cmd->out);
+		safe_open(cmd->out, flags, OPEN_PERMS);
+	} else if (cmd->pipefd_out >= 0) {
+		close(1);
+		dup(cmd->pipefd_out);
 	}
 
 	/* replace stdin with redir */
 	if (cmd->in != NULL) {
-		if (close(0) == -1)
-			err(SHELL_ERR, "close");
-		if (open(cmd->in, O_RDONLY) == -1)
-			err(SHELL_ERR, "open: %s", cmd->in);
+		close(0);
+		safe_open(cmd->in, O_RDONLY, 0);
+	} else if (cmd->pipefd_in >= 0) {
+		close(0);
+		dup(cmd->pipefd_in);
 	}
+
+	close(cmd->pipefd_out);
+	close(cmd->pipefd_in);
 }
 
 static int get_sh_exit(int stat_loc, bool builtin) {
@@ -34,13 +39,13 @@ static int get_sh_exit(int stat_loc, bool builtin) {
 	return sh_exit;
 }
 
-void exec_cmd(cmd_t *cmd) {
+static pid_t exec_cmd(cmd_t *cmd) {
 	pid_t pid;
-	int stat_loc;
 
 	builtin *func = NULL;
 	if ((func = get_builtin(cmd)) != NULL) {
-		stat_loc = func(cmd);
+		pid = 0;
+		func(cmd); // TODO: figure out how to get builtins' exit codes out
 	} else if ((pid = fork()) == 0) {
 		set_process_redirs(cmd);
 		execvp(cmd->file, cmd->argv);
@@ -48,16 +53,33 @@ void exec_cmd(cmd_t *cmd) {
 		// if exec was successful we shouldn't ever get here
 		int exit_code = errno == ENOENT ? UNKNOWN_CMD_ERR : SHELL_ERR;
 		err(exit_code, "%s", cmd->file);
-	} else if (pid == -1) {
-		warn("fork");
-	} else {
-		waitpid(pid, &stat_loc, 0);
 	}
 
-	sh_exit = get_sh_exit(stat_loc, func != NULL);
-	free_cmd(cmd);
+	close(cmd->pipefd_out);
+	close(cmd->pipefd_in);
+	cmd->pipefd_out = -1;
+	cmd->pipefd_in = -1;
+
+	return pid;
 }
 
 void exec_pipecmd(pipecmd_t *pipecmd) {
 	pipecmd_finalize(pipecmd);
+
+	pid_t pid;
+	for (size_t i = 0; i < pipecmd->cmd_count; ++i)
+		pid = exec_cmd(pipecmd->cmds[i]);
+
+	int stat_loc = 0;
+	if (pid > 0)
+		waitpid(pid, &stat_loc, 0);
+
+	do {
+		errno = 0;
+		wait(NULL);
+	} while (errno != ECHILD);
+
+	sh_exit = get_sh_exit(stat_loc, pid == 0);
+
+	free_pipecmd(pipecmd);
 }
