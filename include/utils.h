@@ -1,17 +1,8 @@
 #ifndef utils_guard_de8afa52fbaeb5748cb3e963e330713483ce2f3fbc02171c8276638c34505b0c
 #define utils_guard_de8afa52fbaeb5748cb3e963e330713483ce2f3fbc02171c8276638c34505b0c
 
-#include "magic.h"
-#include <ctype.h>
-#include <err.h>
-#include <fcntl.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/queue.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #define TAILQ_LEN(entry_type, head, next_member)                            \
 	({                                                                  \

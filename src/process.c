@@ -1,4 +1,17 @@
 #include "process.h"
+#include "builtins.h"
+#include "magic.h"
+#include "utils.h"
+#include <err.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdio.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+/* shell exit code */
+extern int sh_exit;
 
 // TODO: handle close() and dup() errors
 static void set_process_redirs(cmd_t *cmd) {
@@ -26,17 +39,18 @@ static void set_process_redirs(cmd_t *cmd) {
 }
 
 static int get_sh_exit(int stat_loc, bool builtin) {
-	if (builtin) {
-		if (stat_loc != -1) // if a builtin returns -1 it means no change to exit code
-			return stat_loc;
+	/* if a builtin returns -1 it means no change to exit code */
+	if (builtin && stat_loc != -1) {
+		return stat_loc;
 	} else if (WIFSIGNALED(stat_loc)) {
 		int sig = WTERMSIG(stat_loc);
 		fprintf(stderr, "Killed by signal %d.\n", sig);
 		return sig + SIG_EXIT_OFFSET;
 	} else if (WIFEXITED(stat_loc)) {
 		return WEXITSTATUS(stat_loc);
+	} else {
+		return sh_exit;
 	}
-	return sh_exit;
 }
 
 static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {

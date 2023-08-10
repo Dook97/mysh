@@ -1,4 +1,15 @@
 #include "builtins.h"
+#include "magic.h"
+#include "utils.h"
+#include <err.h>
+#include <errno.h>
+#include <linux/limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+extern int sh_exit;
 
 int shell_cd(cmd_t *cmd) {
 	if (cmd->pipefd_in != -1)

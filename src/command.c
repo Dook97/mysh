@@ -1,4 +1,6 @@
 #include "command.h"
+#include "utils.h"
+#include <stdlib.h>
 
 static void cmd_finalize(cmd_t *cmd) {
 	char **toks = TOKS_TO_ARR(cmd_tok_t, &cmd->toklist, next, content, char *);
@@ -44,6 +46,7 @@ static cmd_tok_t *make_cmd_tok(const char *content) {
 cmd_t *make_cmd(void) {
 	cmd_t *cmd = safe_malloc(sizeof(cmd_t));
 
+	// TODO: tell clang-format to not do this type of shit
 	*cmd = (cmd_t){.in = NULL, .out = NULL, .argc = 0, .pipefd_in = -1, .pipefd_out = -1};
 
 	TAILQ_INIT(&cmd->toklist);

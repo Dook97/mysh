@@ -1,4 +1,13 @@
 #include "utils.h"
+#include "magic.h"
+#include <ctype.h>
+#include <err.h>
+#include <fcntl.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/queue.h>
 
 void *safe_malloc(size_t size) {
 	void *ret = malloc(size);

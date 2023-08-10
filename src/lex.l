@@ -1,8 +1,8 @@
 %{
-#include <err.h>
-#include <stdio.h>
 #include "command.h"
 #include "pars.tab.h"
+#include "utils.h"
+#include <err.h>
 %}
 
 %x QUOTED

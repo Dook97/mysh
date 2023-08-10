@@ -2,12 +2,12 @@
 #include "utils.h"
 #include <err.h>
 #include <linux/limits.h>
-#include <readline/history.h>
-#include <readline/readline.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+
+#include <readline/history.h>
+#include <readline/readline.h>
 
 int shell_str(const char *str);
 int shell_file(FILE *f);
