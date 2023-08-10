@@ -7,6 +7,15 @@ course at MFF UK during winter semester 23/24.
 
 Requires flex and bison to build.
 
+Supports:
+  * foreground command execution
+  * the three basic redirections <, >, >>
+      -> not supported: 2>, >&2, etc
+  * semicolons to separate commands
+  * pipes
+  * rudimentary quoting like so: "..."
+      -> no support for escaping though
+
 This is a project via which I learn about UNIX systems
 programming. Please don't try to seriously use this.
 You would be disappointed.
