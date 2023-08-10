@@ -29,7 +29,7 @@ static void set_process_redirs(cmd_t *cmd) {
 		int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
 		safe_open(cmd->out, flags, OPEN_PERMS);
 	} else if (cmd->pipefd_out >= 0) {
-		close(1);
+		close(FD_STDOUT);
 		dup(cmd->pipefd_out);
 	}
 

@@ -2,6 +2,7 @@
 #include "magic.h"
 #include <ctype.h>
 #include <err.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -30,8 +31,24 @@ void safe_pipe(int fildes[2]) {
 }
 
 void safe_open(const char *file, int flags, int perms) {
-	if (open(file, flags, perms) == -1)
-		err(SHELL_ERR, "open: %s", file);
+	if (open(file, flags, perms) != -1)
+		return;
+
+	int code;
+	switch (errno) {
+	case EACCES:
+	case EEXIST:
+	case EISDIR:
+	case ENOENT:
+	case ENOTDIR:
+		code = USER_ERR;
+		break;
+	default:
+		code = SHELL_ERR;
+		break;
+	}
+
+	err(code, "open: %s", file);
 }
 
 bool str_isblank(const char *str) {
