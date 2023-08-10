@@ -2,7 +2,7 @@
 
 CC = cc
 CFLAGS = -I./include -Wall -Wextra
-LDFLAGS = -lreadline -lfl
+LDFLAGS = -lreadline
 
 all: mysh
 
