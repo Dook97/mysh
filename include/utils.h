@@ -4,26 +4,26 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-/* get number of elements in a TAILQ instance */
-#define TAILQ_LEN(entry_type, head, next_member)                            \
+/* get number of elements in a STAILQ instance */
+#define STAILQ_LEN(entry_type, head, next_member)                            \
 	({                                                                  \
 		__auto_type safe_head__ = head;                             \
 		size_t out__ = 0;                                           \
 		entry_type *var__;                                          \
-		TAILQ_FOREACH(var__, safe_head__, next_member) { ++out__; } \
+		STAILQ_FOREACH(var__, safe_head__, next_member) { ++out__; } \
 		out__;                                                      \
 	})
 
-/* convert TAILQ to an array */
+/* convert STAILQ to an array */
 #define TOKS_TO_ARR(entry_type, head, next_member, content_member, content_type)            \
 	({                                                                                  \
 		__auto_type safe_head2__ = head;                                            \
-		size_t len__ = TAILQ_LEN(entry_type, safe_head2__, next_member);            \
+		size_t len__ = STAILQ_LEN(entry_type, safe_head2__, next_member);            \
 		content_type *toks_arr__ = safe_malloc((len__ + 1) * sizeof(content_type)); \
-		entry_type *var__ = TAILQ_FIRST(safe_head2__);                              \
+		entry_type *var__ = STAILQ_FIRST(safe_head2__);                              \
 		for (size_t i__ = 0; i__ < len__; ++i__) {                                  \
 			toks_arr__[i__] = var__->content_member;                            \
-			var__ = TAILQ_NEXT(var__, next_member);                             \
+			var__ = STAILQ_NEXT(var__, next_member);                             \
 		}                                                                           \
 		toks_arr__[len__] = NULL;                                                   \
 		toks_arr__;                                                                 \

@@ -10,10 +10,10 @@ enum redir { REDIR_IN, REDIR_OUT, REDIR_APPEND };
 /* linked list of tokens in a command */
 typedef struct cmd_tok {
 	char *content;
-	TAILQ_ENTRY(cmd_tok) next;
+	STAILQ_ENTRY(cmd_tok) next;
 } cmd_tok_t;
 
-TAILQ_HEAD(cmd_head, cmd_tok);
+STAILQ_HEAD(cmd_head, cmd_tok);
 typedef struct cmd_head cmd_head_t;
 
 /* a type representing a simple (non-piped) command */
@@ -35,10 +35,10 @@ typedef struct cmd {
 /* linked list of individual commands in a piped command */
 typedef struct pipecmd_tok {
 	cmd_t *content;
-	TAILQ_ENTRY(pipecmd_tok) next;
+	STAILQ_ENTRY(pipecmd_tok) next;
 } pipecmd_tok_t;
 
-TAILQ_HEAD(pipe_head, pipecmd_tok);
+STAILQ_HEAD(pipe_head, pipecmd_tok);
 typedef struct pipe_head pipe_head_t;
 
 /* a type representing a piped command */

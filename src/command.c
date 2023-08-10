@@ -11,9 +11,9 @@ static void cmd_finalize(cmd_t *cmd) {
 
 /* Deallocates cmd_t and everything within it that needs deallocating. */
 static void free_cmd(cmd_t *cmd) {
-	cmd_tok_t *tok = TAILQ_FIRST(&cmd->toklist);
+	cmd_tok_t *tok = STAILQ_FIRST(&cmd->toklist);
 	while (tok != NULL) {
-		cmd_tok_t *next = TAILQ_NEXT(tok, next);
+		cmd_tok_t *next = STAILQ_NEXT(tok, next);
 		free(tok->content);
 		free(tok);
 		tok = next;
@@ -45,21 +45,21 @@ cmd_t *make_cmd(void) {
 	// TODO: tell clang-format not to do this type of shit
 	*cmd = (cmd_t){.in = NULL, .out = NULL, .argc = 0, .pipefd_in = -1, .pipefd_out = -1};
 
-	TAILQ_INIT(&cmd->toklist);
+	STAILQ_INIT(&cmd->toklist);
 	return cmd;
 }
 
 pipecmd_t *make_pipecmd(void) {
 	pipecmd_t *pipecmd = safe_malloc(sizeof(pipecmd_t));
 	pipecmd->cmd_count = 0;
-	TAILQ_INIT(&pipecmd->toklist);
+	STAILQ_INIT(&pipecmd->toklist);
 	return pipecmd;
 }
 
 void free_pipecmd(pipecmd_t *pipe) {
-	pipecmd_tok_t *tok = TAILQ_FIRST(&pipe->toklist);
+	pipecmd_tok_t *tok = STAILQ_FIRST(&pipe->toklist);
 	while (tok != NULL) {
-		pipecmd_tok_t *next = TAILQ_NEXT(tok, next);
+		pipecmd_tok_t *next = STAILQ_NEXT(tok, next);
 		free_cmd(tok->content);
 		free(tok);
 		tok = next;
@@ -71,7 +71,7 @@ void free_pipecmd(pipecmd_t *pipe) {
 void cmd_append(cmd_t *cmd, char *content) {
 	cmd_tok_t *tok = make_cmd_tok(content);
 	++cmd->argc;
-	TAILQ_INSERT_TAIL(&cmd->toklist, tok, next);
+	STAILQ_INSERT_TAIL(&cmd->toklist, tok, next);
 }
 
 void pipecmd_finalize(pipecmd_t *pipe) {
@@ -82,7 +82,7 @@ void pipecmd_append(pipecmd_t *pipe, cmd_t *content) {
 	cmd_finalize(content);
 	pipecmd_tok_t *tok = make_pipecmd_tok(content);
 
-	TAILQ_INSERT_TAIL(&pipe->toklist, tok, next);
+	STAILQ_INSERT_TAIL(&pipe->toklist, tok, next);
 	++pipe->cmd_count;
 }
 
