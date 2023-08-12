@@ -53,7 +53,7 @@ piped_command: command					{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
 
 command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }
 	| redir_only_command IDENTIFIER			{ cmd_append($$, $2); }
-	| command IDENTIFIER				{ cmd_append($1, $2); }
+	| command IDENTIFIER				{ cmd_append($$, $2); }
 	| command REDIR IDENTIFIER			{ cmd_redir($$, $2, $3); }
 	;
 

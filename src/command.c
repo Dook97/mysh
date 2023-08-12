@@ -33,9 +33,9 @@ static pipecmd_tok_t *make_pipecmd_tok(cmd_t *content) {
 }
 
 /* safely allocate and initialize a new cmd_tok_t */
-static cmd_tok_t *make_cmd_tok(const char *content) {
+static cmd_tok_t *make_cmd_tok(char *content) {
 	cmd_tok_t *tok = safe_malloc(sizeof(cmd_tok_t));
-	tok->content = safe_strdup(content);
+	tok->content = content;
 	return tok;
 }
 
@@ -61,16 +61,16 @@ pipecmd_t *make_pipecmd(void) {
 	return pipecmd;
 }
 
-void free_pipecmd(pipecmd_t *pipe) {
-	pipecmd_tok_t *tok = STAILQ_FIRST(&pipe->toklist);
+void free_pipecmd(pipecmd_t *pipecmd) {
+	pipecmd_tok_t *tok = STAILQ_FIRST(&pipecmd->toklist);
 	while (tok != NULL) {
 		pipecmd_tok_t *next = STAILQ_NEXT(tok, next);
 		free_cmd(tok->content);
 		free(tok);
 		tok = next;
 	}
-	free(pipe->cmds);
-	free(pipe);
+	free(pipecmd->cmds);
+	free(pipecmd);
 }
 
 void cmd_append(cmd_t *cmd, char *content) {
