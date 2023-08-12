@@ -79,16 +79,16 @@ void cmd_append(cmd_t *cmd, char *content) {
 	STAILQ_INSERT_TAIL(&cmd->toklist, tok, next);
 }
 
-void pipecmd_finalize(pipecmd_t *pipe) {
-	pipe->cmds = TOKS_TO_ARR(pipecmd_tok_t, &pipe->toklist, next, content, cmd_t *);
+void pipecmd_finalize(pipecmd_t *pipecmd) {
+	pipecmd->cmds = TOKS_TO_ARR(pipecmd_tok_t, &pipecmd->toklist, next, content, cmd_t *);
 }
 
-void pipecmd_append(pipecmd_t *pipe, cmd_t *content) {
+void pipecmd_append(pipecmd_t *pipecmd, cmd_t *content) {
 	cmd_finalize(content);
 	pipecmd_tok_t *tok = make_pipecmd_tok(content);
 
-	STAILQ_INSERT_TAIL(&pipe->toklist, tok, next);
-	++pipe->cmd_count;
+	STAILQ_INSERT_TAIL(&pipecmd->toklist, tok, next);
+	++pipecmd->cmd_count;
 }
 
 void cmd_redir(cmd_t *cmd, enum redir r, char *file) {
