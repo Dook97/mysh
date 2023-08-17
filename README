@@ -9,8 +9,6 @@ Supports:
   * the three basic redirections <, >, >>
       -> not supported: 2>, >&2, etc
   * semicolons to separate commands
-  * rudimentary quoting like so: "..."
-      -> no support for escaping though
   * pipes
       -> echo I hate UNIX | sed "s/hate/♥/" | cowsay
 

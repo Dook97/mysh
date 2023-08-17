@@ -24,7 +24,7 @@ extern char *yytext;
 %type	<pipecmd>	piped_command
 
 /* free memory in case of a parsing error */
-%destructor { free($$); } IDENTIFIER
+%destructor { free($$); } <string>
 %destructor { free_cmd($$); } <command>
 %destructor { free_pipecmd($$); } <pipecmd>
 
@@ -62,7 +62,6 @@ command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }
 	| command REDIR IDENTIFIER			{ $$ = $1; cmd_redir($1, $2, $3); }
 	;
 
-/* for commands which start with a redirect */
 redir_only_command: REDIR IDENTIFIER			{ $$ = make_cmd(); cmd_redir($$, $1, $2); }
 	| redir_only_command REDIR IDENTIFIER		{ $$ = $1; cmd_redir($1, $2, $3); }
 	;
