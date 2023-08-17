@@ -58,14 +58,14 @@ static int get_sh_exit(int stat_loc, bool builtin) {
 	if (builtin && stat_loc != BUILTIN_DISCARD_EXIT)
 		return stat_loc;
 
+	if (WIFEXITED(stat_loc))
+		return WEXITSTATUS(stat_loc);
+
 	if (WIFSIGNALED(stat_loc)) {
 		int sig = WTERMSIG(stat_loc);
 		fprintf(stderr, "Killed by signal %d.\n", sig);
 		return sig + SIG_EXIT_OFFSET;
 	}
-
-	if (WIFEXITED(stat_loc))
-		return WEXITSTATUS(stat_loc);
 
 	return sh_exit;
 }
@@ -123,7 +123,7 @@ void exec_pipecmd(pipecmd_t *pipecmd) {
 	int stat_loc = 0;
 	pid_t pid = exec_cmd(pipecmd->cmds[pipecmd->cmd_count - 1], &stat_loc);
 
-	/* wait for the last command and get its exit code */
+	/* wait for the last command and get its exit status */
 	if (pid > 0)
 		waitpid(pid, &stat_loc, 0);
 

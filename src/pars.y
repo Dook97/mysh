@@ -23,6 +23,11 @@ extern char *yytext;
 %type	<command>	command redir_only_command
 %type	<pipecmd>	piped_command
 
+/* free memory in case of a parsing error */
+%destructor { free($$); } IDENTIFIER
+%destructor { free_cmd($$); } <command>
+%destructor { free_pipecmd($$); } <pipecmd>
+
 %%
 
 all: /* empty input */
@@ -48,18 +53,18 @@ command_queue: piped_command				{ exec_pipecmd($1); }
 	;
 
 piped_command: command					{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
-	| piped_command PIPE command			{ pipecmd_append($$, $3); }
+	| piped_command PIPE command			{ $$ = $1; pipecmd_append($1, $3); }
 	;
 
 command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }
-	| redir_only_command IDENTIFIER			{ cmd_append($$, $2); }
-	| command IDENTIFIER				{ cmd_append($$, $2); }
-	| command REDIR IDENTIFIER			{ cmd_redir($$, $2, $3); }
+	| redir_only_command IDENTIFIER			{ $$ = $1; cmd_append($1, $2); }
+	| command IDENTIFIER				{ $$ = $1; cmd_append($1, $2); }
+	| command REDIR IDENTIFIER			{ $$ = $1; cmd_redir($1, $2, $3); }
 	;
 
 /* for commands which start with a redirect */
 redir_only_command: REDIR IDENTIFIER			{ $$ = make_cmd(); cmd_redir($$, $1, $2); }
-	| redir_only_command REDIR IDENTIFIER		{ cmd_redir($$, $2, $3); }
+	| redir_only_command REDIR IDENTIFIER		{ $$ = $1; cmd_redir($1, $2, $3); }
 	;
 
 %%

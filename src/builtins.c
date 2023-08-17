@@ -66,7 +66,7 @@ int shell_cd(cmd_t *cmd) {
 	}
 
 	/* notify user of his new PWD if he used "cd -" */
-	if (argc == 2 && strcmp(cmd->argv[1], "-") == 0)
+	if (cmd->argc == 2 && strcmp(cmd->argv[1], "-") == 0)
 		fprintf(stderr, "%s\n", new_pwd);
 
 	return 0;

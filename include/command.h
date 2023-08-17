@@ -55,19 +55,22 @@ cmd_t *make_cmd(void);
 /* Safely allocate and initialize a new piped command. */
 pipecmd_t *make_pipecmd(void);
 
+/* Deallocates cmd_t and everything within it that needs deallocating. */
+void free_cmd(cmd_t *cmd);
+
 /* Deep-deallocate a pipecmd_t object. */
 void free_pipecmd(pipecmd_t *pipecmd);
 
 /* Append a token to a command. */
 void cmd_append(cmd_t *cmd, char *content);
 
+/* Append a simple command to a piped command. */
+void pipecmd_append(pipecmd_t *pipecmd, cmd_t *content);
+
 /* Set command redirections (<, >, >>). */
 void cmd_redir(cmd_t *cmd, enum redir r, char *file);
 
 /* Once all tokens are appended this function prepares pipecmd_t for execution. */
 void pipecmd_finalize(pipecmd_t *pipecmd);
-
-/* Append a simple command to a piped command. */
-void pipecmd_append(pipecmd_t *pipecmd, cmd_t *content);
 
 #endif
