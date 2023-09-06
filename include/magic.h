@@ -23,7 +23,7 @@
 #define FD_STDOUT 1
 #define FD_STDERR 2
 
-/* value returned by a shell builtin signalling that the exit code of the shell should remained
+/* value returned by a shell builtin signalling that the exit code of the shell should remain
  * unchanged after the builtin's execution
  */
 #define BUILTIN_DISCARD_EXIT -1

@@ -24,9 +24,9 @@ extern char *yytext;
 %type	<pipecmd>	piped_command
 
 /* free memory in case of a parsing error */
-%destructor { free($$); } <string>
-%destructor { free_cmd($$); } <command>
-%destructor { free_pipecmd($$); } <pipecmd>
+%destructor { free($$); }		<string>
+%destructor { free_cmd($$); }		<command>
+%destructor { free_pipecmd($$); }	<pipecmd>
 
 %%
 

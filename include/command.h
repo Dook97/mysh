@@ -21,8 +21,8 @@ typedef struct cmd {
 	char *file;
 	char *in, *out; // redirections
 	char **argv; // NULL terminated arr
-	size_t argc; // set on ">>" redirection
-	bool append;
+	size_t argc;
+	bool append; // set on ">>" redirection
 
 	/* if the command is a part of a pipe these are the pipe's file descriptors. The default
 	 * value, meaning no fd was assigned (yet), is -1.
