@@ -19,10 +19,10 @@ typedef struct cmd_head cmd_head_t;
 /* a type representing a simple (non-piped) command */
 typedef struct cmd {
 	char *file;
-	char *in, *out; // redirections
-	char **argv; // NULL terminated arr
+	char *in, *out; /* redirections */
+	char **argv; /* NULL terminated arr */
 	size_t argc;
-	bool append; // set on ">>" redirection
+	bool append; /* set on ">>" redirection */
 
 	/* if the command is a part of a pipe these are the pipe's file descriptors. The default
 	 * value, meaning no fd was assigned (yet), is -1.
@@ -43,7 +43,7 @@ typedef struct pipe_head pipe_head_t;
 
 /* a type representing a piped command */
 typedef struct pipecmd {
-	cmd_t **cmds; // NULL terminated arr
+	cmd_t **cmds; /* NULL terminated arr */
 	size_t cmd_count;
 
 	pipe_head_t toklist;

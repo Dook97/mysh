@@ -90,8 +90,8 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 		set_process_redirs(cmd);
 		execvp(cmd->file, cmd->argv);
 
-		// if exec was successful we shouldn't ever get here
-		int exit_code = errno == ENOENT ? UNKNOWN_CMD_ERR : SHELL_ERR;
+		/* if exec was successful we shouldn't ever get here */
+		int exit_code = (errno == ENOENT) ? UNKNOWN_CMD_ERR : SHELL_ERR;
 		err(exit_code, "%s", cmd->file);
 	} else if (pid == -1) {
 		warn("fork");
@@ -111,10 +111,11 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 void exec_pipecmd(pipecmd_t *pipecmd) {
 	pipecmd_finalize(pipecmd);
 
-	/* [0] == read, [1] == write */
-	int pipe_fds[2] = { -1, -1 };
 	for (size_t i = 0; i < pipecmd->cmd_count - 1; ++i) {
+		/* [0] == read, [1] == write */
+		int pipe_fds[2];
 		cmd_t *cur = pipecmd->cmds[i], *next = pipecmd->cmds[i + 1];
+
 		safe_pipe(pipe_fds);
 		cur->pipefd_out = pipe_fds[1];
 		next->pipefd_in = pipe_fds[0];

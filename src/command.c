@@ -29,7 +29,7 @@ cmd_t *make_cmd(void) {
 	*cmd = (cmd_t){
 		.in = NULL,
 		.out = NULL,
-		.argv = NULL, // to enable safe free()-ing in case of parser error
+		.argv = NULL, /* to enable safe free()-ing in case of parser error */
 		.argc = 0,
 		.pipefd_in = -1,
 		.pipefd_out = -1,
@@ -42,7 +42,7 @@ cmd_t *make_cmd(void) {
 pipecmd_t *make_pipecmd(void) {
 	pipecmd_t *pipecmd = safe_malloc(sizeof(pipecmd_t));
 	pipecmd->cmd_count = 0;
-	pipecmd->cmds = NULL; // to enable safe free()-ing in case of parser error
+	pipecmd->cmds = NULL; /* to enable safe free()-ing in case of parser error */
 	STAILQ_INIT(&pipecmd->toklist);
 	return pipecmd;
 }

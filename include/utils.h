@@ -4,19 +4,23 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-/* get number of elements in a STAILQ instance */
-#define STAILQ_LEN(entry_type, head, next_member)                            \
-	({                                                                   \
-		__auto_type safe_head__ = head;                              \
-		size_t out__ = 0;                                            \
-		entry_type *var__;                                           \
-		STAILQ_FOREACH(var__, safe_head__, next_member) { ++out__; } \
-		out__;                                                       \
+#define STAILQ_LEN(entry_type, head, next_member)                 \
+	({                                                        \
+		/* get number of elements in a STAILQ instance */ \
+                                                                  \
+		__auto_type safe_head__ = head;                   \
+		size_t out__ = 0;                                 \
+		entry_type *var__;                                \
+		STAILQ_FOREACH(var__, safe_head__, next_member) { \
+			++out__;                                  \
+		}                                                 \
+		out__;                                            \
 	})
 
-/* convert STAILQ to an array */
 #define TOKS_TO_ARR(entry_type, head, next_member, content_member, content_type)            \
 	({                                                                                  \
+		/* convert STAILQ to a NULL-terminated array */                             \
+                                                                                            \
 		__auto_type safe_head2__ = head;                                            \
 		size_t len__ = STAILQ_LEN(entry_type, safe_head2__, next_member);           \
 		content_type *toks_arr__ = safe_malloc((len__ + 1) * sizeof(content_type)); \

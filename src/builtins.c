@@ -20,6 +20,7 @@ int shell_cd(cmd_t *cmd) {
 		close(cmd->pipefd_out);
 
 	char *new_path = NULL;
+	bool to_prev = false;
 	switch (cmd->argc) {
 	case 0:
 		warnx("cd: internal shell error");
@@ -33,7 +34,8 @@ int shell_cd(cmd_t *cmd) {
 		}
 		break;
 	case 2:
-		new_path = strcmp(cmd->argv[1], "-") == 0 ? getenv("OLDPWD") : cmd->argv[1];
+		to_prev = !strcmp(cmd->argv[1], "-");
+		new_path = to_prev ? getenv("OLDPWD") : cmd->argv[1];
 		break;
 	default:
 		warnx("cd: too many arguments");
@@ -59,14 +61,13 @@ int shell_cd(cmd_t *cmd) {
 		return SHELL_ERR;
 	}
 
-	errno = 0;
 	if (chdir(new_pwd) == -1) {
 		warn("cd: chdir: %s", new_pwd);
 		return (errno == ELOOP || errno == ENAMETOOLONG) ? SHELL_ERR : USER_ERR;
 	}
 
 	/* notify user of his new PWD if he used "cd -" */
-	if (cmd->argc == 2 && strcmp(cmd->argv[1], "-") == 0)
+	if (to_prev)
 		fprintf(stderr, "%s\n", new_pwd);
 
 	return 0;
@@ -79,7 +80,7 @@ int shell_exit(cmd_t *cmd) {
 	if (cmd->pipefd_out != -1)
 		close(cmd->pipefd_out);
 
-	int exit_code = -1;
+	int exit_code = BUILTIN_DISCARD_EXIT;
 	switch (cmd->argc) {
 	case 0:
 		warnx("exit: internal shell error");
@@ -92,7 +93,7 @@ int shell_exit(cmd_t *cmd) {
 		if (!str_isnum(cmd->argv[1]))
 			errx(USER_ERR, "exit: %s: numeric argument required", cmd->argv[1]);
 
-		errno = 0; // errno is never set 0 by any syscall or library function
+		errno = 0; /* errno is never set 0 by any syscall or library function */
 		exit_code = strtol(cmd->argv[1], NULL, 10);
 		if (exit_code < 0 && errno != 0) {
 			warn("exit: strtol");
@@ -105,7 +106,7 @@ int shell_exit(cmd_t *cmd) {
 		return USER_ERR;
 	}
 
-	exit(exit_code == -1 ? sh_exit : exit_code);
+	exit(exit_code == BUILTIN_DISCARD_EXIT ? sh_exit : exit_code);
 }
 
 builtin *get_builtin(cmd_t *cmd) {
