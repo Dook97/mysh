@@ -102,7 +102,8 @@ int main(int argc, char **argv) {
 	case 3:
 		/* -c option works same as bash */
 		if (strcmp("-c", argv[1]) == 0) {
-			shell_str(argv[2]);
+			if (shell_str(argv[2]) == -1)
+				sh_exit = USER_ERR;
 			break;
 		}
 		__attribute__((fallthrough));
