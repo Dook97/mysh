@@ -81,7 +81,7 @@ static int get_sh_exit(int stat_loc, bool builtin) {
  */
 static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	pid_t pid;
-	int stat_loc_internal;
+	int stat_loc_internal = 0;
 
 	builtin *func = NULL;
 	if ((func = get_builtin(cmd)) != NULL) {
@@ -102,9 +102,8 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	/* closing these is important because otherwise producer/consumer processes on the other
 	 * side of the pipe will get stuck (also freeing system resources is a good idea lol)
 	 */
-	if ((cmd->pipefd_out != -1 && close(cmd->pipefd_out) == -1)
-	    || (cmd->pipefd_in != -1 && close(cmd->pipefd_in) == -1))
-		warn("close");
+	CLOSE_PIPE_IN(cmd);
+	CLOSE_PIPE_OUT(cmd);
 
 	/* in case the caller is not interested in the output parameter */
 	if (stat_loc != NULL)

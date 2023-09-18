@@ -33,6 +33,24 @@
 		toks_arr__;                                                                 \
 	})
 
+#define CLOSE_PIPE_IN(cmd)                               \
+	{                                                \
+		if (cmd->pipefd_in != -1) {              \
+			if (close(cmd->pipefd_in) == -1) \
+				warn("close");           \
+			cmd->pipefd_in = -1;             \
+		}                                        \
+	}
+
+#define CLOSE_PIPE_OUT(cmd)                               \
+	{                                                 \
+		if (cmd->pipefd_out != -1) {              \
+			if (close(cmd->pipefd_out) == -1) \
+				warn("close");            \
+			cmd->pipefd_out = -1;             \
+		}                                         \
+	}
+
 /* malloc() except it kills the program with an err message on failure. */
 void *safe_malloc(size_t size);
 

@@ -14,14 +14,8 @@ extern int sh_exit;
 
 int shell_cd(cmd_t *cmd) {
 	/* we're not expecting any input, nor non-error output */
-	if (cmd->pipefd_in != -1) {
-		close(cmd->pipefd_in);
-		cmd->pipefd_in = -1;
-	}
-	if (cmd->pipefd_out != -1) {
-		close(cmd->pipefd_out);
-		cmd->pipefd_out = -1;
-	}
+	CLOSE_PIPE_IN(cmd);
+	CLOSE_PIPE_OUT(cmd);
 
 	char *new_path = NULL;
 	bool to_prev = false;
@@ -79,10 +73,8 @@ int shell_cd(cmd_t *cmd) {
 
 int shell_exit(cmd_t *cmd) {
 	/* we're not expecting any input, nor non-error output */
-	if (cmd->pipefd_in != -1)
-		close(cmd->pipefd_in);
-	if (cmd->pipefd_out != -1)
-		close(cmd->pipefd_out);
+	CLOSE_PIPE_IN(cmd);
+	CLOSE_PIPE_OUT(cmd);
 
 	int exit_code = BUILTIN_DISCARD_EXIT;
 	switch (cmd->argc) {
