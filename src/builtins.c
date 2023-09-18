@@ -14,10 +14,14 @@ extern int sh_exit;
 
 int shell_cd(cmd_t *cmd) {
 	/* we're not expecting any input, nor non-error output */
-	if (cmd->pipefd_in != -1)
+	if (cmd->pipefd_in != -1) {
 		close(cmd->pipefd_in);
-	if (cmd->pipefd_out != -1)
+		cmd->pipefd_in = -1;
+	}
+	if (cmd->pipefd_out != -1) {
 		close(cmd->pipefd_out);
+		cmd->pipefd_out = -1;
+	}
 
 	char *new_path = NULL;
 	bool to_prev = false;

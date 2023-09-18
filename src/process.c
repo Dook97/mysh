@@ -81,11 +81,12 @@ static int get_sh_exit(int stat_loc, bool builtin) {
  */
 static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	pid_t pid;
+	int stat_loc_internal;
 
 	builtin *func = NULL;
 	if ((func = get_builtin(cmd)) != NULL) {
 		pid = 0;
-		*stat_loc = func(cmd);
+		stat_loc_internal = func(cmd);
 	} else if ((pid = fork()) == 0) {
 		set_process_redirs(cmd);
 		execvp(cmd->file, cmd->argv);
@@ -95,7 +96,7 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 		err(exit_code, "%s", cmd->file);
 	} else if (pid == -1) {
 		warn("fork");
-		*stat_loc = SHELL_ERR;
+		stat_loc_internal = SHELL_ERR;
 	}
 
 	/* closing these is important because otherwise producer/consumer processes on the other
@@ -104,6 +105,10 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	if ((cmd->pipefd_out != -1 && close(cmd->pipefd_out) == -1)
 	    || (cmd->pipefd_in != -1 && close(cmd->pipefd_in) == -1))
 		warn("close");
+
+	/* in case the caller is not interested in the output parameter */
+	if (stat_loc != NULL)
+		*stat_loc = stat_loc_internal;
 
 	return pid;
 }
