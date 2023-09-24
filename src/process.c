@@ -102,8 +102,8 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	/* closing these is important because otherwise producer/consumer processes on the other
 	 * side of the pipe will get stuck (also freeing system resources is a good idea lol)
 	 */
-	CLOSE_PIPE_IN(cmd);
-	CLOSE_PIPE_OUT(cmd);
+	close_pipe(cmd, true);
+	close_pipe(cmd, false);
 
 	/* in case the caller is not interested in the output parameter */
 	if (stat_loc != NULL)

@@ -14,8 +14,8 @@ extern int sh_exit;
 
 int shell_cd(cmd_t *cmd) {
 	/* we're not expecting any input, nor non-error output */
-	CLOSE_PIPE_IN(cmd);
-	CLOSE_PIPE_OUT(cmd);
+	close_pipe(cmd, true);
+	close_pipe(cmd, false);
 
 	char *new_path = NULL;
 	bool to_prev = false;
@@ -73,8 +73,8 @@ int shell_cd(cmd_t *cmd) {
 
 int shell_exit(cmd_t *cmd) {
 	/* we're not expecting any input, nor non-error output */
-	CLOSE_PIPE_IN(cmd);
-	CLOSE_PIPE_OUT(cmd);
+	close_pipe(cmd, true);
+	close_pipe(cmd, false);
 
 	int exit_code = BUILTIN_DISCARD_EXIT;
 	switch (cmd->argc) {
@@ -93,7 +93,7 @@ int shell_exit(cmd_t *cmd) {
 		exit_code = strtol(cmd->argv[1], NULL, 10);
 		if (exit_code < 0 && errno != 0) {
 			warn("exit: strtol");
-			exit_code = errno == EINVAL ? USER_ERR : SHELL_ERR;
+			exit_code = (errno == EINVAL) ? USER_ERR : SHELL_ERR;
 		}
 
 		break;
@@ -102,7 +102,7 @@ int shell_exit(cmd_t *cmd) {
 		return USER_ERR;
 	}
 
-	exit(exit_code == BUILTIN_DISCARD_EXIT ? sh_exit : exit_code);
+	exit((exit_code == BUILTIN_DISCARD_EXIT) ? sh_exit : exit_code);
 }
 
 builtin *get_builtin(cmd_t *cmd) {
