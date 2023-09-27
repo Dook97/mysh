@@ -20,14 +20,15 @@ int sh_exit = 0;
 static void sigint_handler(int sig) {
 	(void)sig;
 
-	/* if readline is not currently awaiting input don't do anything */
-	if (rl_done)
-		return;
-
 	/* move readline to a new empty line */
 	rl_crlf();
 	rl_on_new_line();
 	rl_replace_line("", 0);
+
+	/* if readline isn't currently awaiting input, we're done */
+	if (rl_done)
+		return;
+
 	rl_redisplay();
 
 	/* reset position in history to latest item */
@@ -55,7 +56,14 @@ static char *get_prompt(char buf[], size_t bufsize) {
 
 /* Run the shell in interactive mode. */
 static void interactive(void) {
-	signal(SIGINT, sigint_handler);
+	struct sigaction sa = {
+		.sa_handler = sigint_handler,
+		.sa_flags = SA_RESTART,
+	};
+	sigemptyset(&sa.sa_mask);
+
+	if (sigaction(SIGINT, &sa, NULL) == -1)
+		err(SHELL_ERR, "sigaction: failed to register SIGINT handler");
 
 	char prompt_buf[PROMPT_BUFSIZE];
 	char *prompt;
@@ -69,6 +77,7 @@ static void interactive(void) {
 		}
 		free(line);
 	}
+	/* ^D was pressed */
 	fprintf(stderr, "exit\n");
 	rl_clear_history();
 }
