@@ -83,8 +83,8 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	pid_t pid;
 	int stat_loc_internal = 0;
 
-	builtin *func = NULL;
-	if ((func = get_builtin(cmd)) != NULL) {
+	builtin *func = get_builtin(cmd);
+	if (func != NULL) {
 		pid = 0;
 		stat_loc_internal = func(cmd);
 	} else if ((pid = fork()) == 0) {
@@ -129,14 +129,15 @@ void exec_pipecmd(pipecmd_t *pipecmd) {
 	pid_t pid = exec_cmd(pipecmd->cmds[pipecmd->cmd_count - 1], &stat_loc);
 
 	/* wait for the last command and get its exit status */
-	if (pid > 0)
-		waitpid(pid, &stat_loc, 0);
+	if (pid > 0 && waitpid(pid, &stat_loc, 0) == -1)
+		err(SHELL_ERR, "waitpid");
 
 	/* then wait for the rest */
-	do {
-		errno = 0;
-		wait(NULL);
-	} while (errno != ECHILD);
+	while (wait(NULL) != -1)
+		;
+
+	if (errno != ECHILD)
+		err(SHELL_ERR, "wait");
 
 	sh_exit = get_sh_exit(stat_loc, pid == 0);
 
