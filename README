@@ -8,7 +8,7 @@ Supports:
   * foreground command execution
   * the three basic redirections <, >, >>
       -> not supported: 2>, >&2, etc
-  * semicolons to separate commands
+  * the -c option
   * pipes
       -> echo I hate UNIX | sed s/hate/love/ | cowsay
 
