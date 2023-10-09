@@ -5,7 +5,7 @@
 #include <err.h>
 %}
 
-IDENTIFIER_CHAR ([!-~]{-}[#;<>])
+IDENTIFIER_CHAR ([!-~]{-}[#;<>|])
 BLANK_CHAR ([\0- ]{-}[\n])
 
 %option noyywrap nodefault nounput noinput yylineno

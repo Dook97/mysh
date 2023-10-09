@@ -24,7 +24,7 @@ static void fd_replace(const char *file, int replaced, int replacement, int flag
 	if (replacement != -1) {
 		if (dup2(replacement, replaced) == -1)
 			err(SHELL_ERR, "dup2");
-		if (close(replacement) == -1)
+		if (replacement != replaced && close(replacement) == -1)
 			err(SHELL_ERR, "close");
 	}
 }
