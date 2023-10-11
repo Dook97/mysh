@@ -72,8 +72,7 @@ static void interactive(void) {
 	while (prompt = get_prompt(prompt_buf, sizeof(prompt_buf)), (line = readline(prompt)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
-			if (shell_str(line) != 0)
-				sh_exit = USER_ERR;
+			shell_str(line);
 		}
 		free(line);
 	}
@@ -94,8 +93,7 @@ static void filemode(const char *path) {
 		return;
 	}
 
-	if (shell_file(f) != 0)
-		sh_exit = USER_ERR;
+	shell_file(f);
 
 	fclose(f);
 }
@@ -111,8 +109,7 @@ int main(int argc, char **argv) {
 	case 3:
 		/* -c option works same as bash */
 		if (strcmp("-c", argv[1]) == 0) {
-			if (shell_str(argv[2]) != 0)
-				sh_exit = USER_ERR;
+			shell_str(argv[2]);
 			break;
 		}
 		__attribute__((fallthrough));

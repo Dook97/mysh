@@ -7,6 +7,7 @@
 /* exit codes */
 #define USER_ERR 1
 #define SHELL_ERR 2
+#define PARSING_ERR 1
 #define UNKNOWN_CMD_ERR 127
 #define NOT_IMPLEMENTED_ERR 255
 

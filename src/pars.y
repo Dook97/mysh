@@ -2,11 +2,13 @@
 #include <stdio.h>
 #include "command.h"
 #include "process.h"
+#include "magic.h"
 
 void yyerror(const char *err);
 int yylex(void);
 extern int yylineno;
 extern char *yytext;
+extern int sh_exit;
 %}
 
 %union {
@@ -69,5 +71,6 @@ redir_only_command: REDIR IDENTIFIER			{ $$ = make_cmd(); cmd_redir($$, $1, $2);
 %%
 
 void yyerror(const char *err) {
+	sh_exit = PARSING_ERR;
 	fprintf(stderr, "error:%d: %s near unexpected token '%s'\n", yylineno, err, yytext);
 }
