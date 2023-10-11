@@ -22,7 +22,7 @@ BLANK_CHAR ([\0- ]{-}[\n])
 {BLANK_CHAR}+		{ /* ignore whitespace */ }
 {IDENTIFIER_CHAR}+	{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
 
-.			{ warnx("error:%d: unknown token: %s\n", yylineno, yytext); }
+.			{ warnx("error:%d: unknown token: %s", yylineno, yytext); }
 
 %%
 
