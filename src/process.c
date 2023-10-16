@@ -113,8 +113,6 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 }
 
 void exec_pipecmd(pipecmd_t *pipecmd) {
-	pipecmd_finalize(pipecmd);
-
 	for (size_t i = 0; i < pipecmd->cmd_count - 1; ++i) {
 		/* [0] == read, [1] == write */
 		int pipe_fds[2];
