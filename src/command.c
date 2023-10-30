@@ -4,7 +4,7 @@
 
 /* Once all tokens are appended, prepares cmd_t object for execution. */
 static void cmd_finalize(cmd_t *cmd) {
-	char **toks = TOKS_TO_ARR(cmd_tok_t, &cmd->toklist, next, content, char *);
+	char **toks = STAILQ_TO_ARR(cmd_tok_t, &cmd->toklist, next, content, char *);
 	cmd->file = toks[0];
 	cmd->argv = toks;
 }
@@ -108,5 +108,5 @@ void cmd_redir(cmd_t *cmd, enum redir r, char *file) {
 }
 
 void pipecmd_finalize(pipecmd_t *pipecmd) {
-	pipecmd->cmds = TOKS_TO_ARR(pipecmd_tok_t, &pipecmd->toklist, next, content, cmd_t *);
+	pipecmd->cmds = STAILQ_TO_ARR(pipecmd_tok_t, &pipecmd->toklist, next, content, cmd_t *);
 }

@@ -18,22 +18,22 @@
 		STAILQ_LEN_out__;                                                       \
 	})
 
-#define TOKS_TO_ARR(entry_type, head, next_member, content_member, content_type)         \
-	({                                                                               \
-		/* convert STAILQ to a NULL-terminated array */                          \
-                                                                                         \
-		__auto_type TOKS_TO_ARR_safe_head__ = head;                              \
-		size_t TOKS_TO_ARR_len__ =                                               \
-			STAILQ_LEN(entry_type, TOKS_TO_ARR_safe_head__, next_member);    \
-		content_type *TOKS_TO_ARR_res__ =                                        \
-			safe_malloc((TOKS_TO_ARR_len__ + 1) * sizeof(content_type));     \
-		entry_type *TOKS_TO_ARR_var__ = STAILQ_FIRST(TOKS_TO_ARR_safe_head__);   \
-		for (size_t i__ = 0; i__ < TOKS_TO_ARR_len__; ++i__) {                   \
-			TOKS_TO_ARR_res__[i__] = TOKS_TO_ARR_var__->content_member;      \
-			TOKS_TO_ARR_var__ = STAILQ_NEXT(TOKS_TO_ARR_var__, next_member); \
-		}                                                                        \
-		TOKS_TO_ARR_res__[TOKS_TO_ARR_len__] = NULL;                             \
-		TOKS_TO_ARR_res__;                                                       \
+#define STAILQ_TO_ARR(entry_type, head, next_member, content_member, content_type)           \
+	({                                                                                   \
+		/* convert STAILQ to a NULL-terminated array */                              \
+                                                                                             \
+		__auto_type STAILQ_TO_ARR_safe_head__ = head;                                \
+		size_t STAILQ_TO_ARR_len__ =                                                 \
+			STAILQ_LEN(entry_type, STAILQ_TO_ARR_safe_head__, next_member);      \
+		content_type *STAILQ_TO_ARR_res__ =                                          \
+			safe_malloc((STAILQ_TO_ARR_len__ + 1) * sizeof(content_type));       \
+		entry_type *STAILQ_TO_ARR_var__ = STAILQ_FIRST(STAILQ_TO_ARR_safe_head__);   \
+		for (size_t i__ = 0; i__ < STAILQ_TO_ARR_len__; ++i__) {                     \
+			STAILQ_TO_ARR_res__[i__] = STAILQ_TO_ARR_var__->content_member;      \
+			STAILQ_TO_ARR_var__ = STAILQ_NEXT(STAILQ_TO_ARR_var__, next_member); \
+		}                                                                            \
+		STAILQ_TO_ARR_res__[STAILQ_TO_ARR_len__] = NULL;                             \
+		STAILQ_TO_ARR_res__;                                                         \
 	})
 
 /* malloc() except it kills the program with an err message on failure. */
