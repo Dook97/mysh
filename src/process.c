@@ -15,10 +15,11 @@
 extern int sh_exit;
 
 /* helper for set_process_redirs */
-static void handle_redir(redir_t *redir) {
+static void handle_redir(const redir_t *redir) {
 	int flags = O_WRONLY | O_CREAT | (redir->type == REDIR_APPEND ? O_APPEND : O_TRUNC);
 
-	int file_fd = -1;
+	int file_fd = FD_INVALID;
+	int right_fd = redir->right_fd;
 	switch (redir->type) {
 	case REDIR_IN:
 		flags = O_RDONLY;
@@ -27,23 +28,17 @@ static void handle_redir(redir_t *redir) {
 	case REDIR_APPEND:
 		if (redir->file == NULL)
 			errx(SHELL_ERR, "internal shell error: invalid file");
-		if (redir->left_fd < 0)
-			errx(USER_ERR, "bad fd number");
 		file_fd = safe_open(redir->file, flags, OPEN_PERMS);
-		if (dup2(file_fd, redir->left_fd) == -1)
-			err(SHELL_ERR, "dup2");
-		close(file_fd);
-		break;
-	case FDREDIR_IN:
-	case FDREDIR_OUT:
-		if (redir->left_fd < 0)
-			errx(SHELL_ERR, "internal shell error: bad file descriptor");
-		if (redir->right_fd < 0)
-			errx(USER_ERR, "bad fd number");
-		if (dup2(redir->right_fd, redir->left_fd) == -1)
-			err(SHELL_ERR, "dup2");
+		right_fd = file_fd;
+	default:
 		break;
 	}
+
+	if (dup2(right_fd, redir->left_fd) == -1)
+		err(errno == EBADF ? USER_ERR : SHELL_ERR, "dup2");
+
+	if (file_fd != FD_INVALID)
+		close(file_fd);
 }
 
 /* Set I/O files for a process started from exec_cmd.
