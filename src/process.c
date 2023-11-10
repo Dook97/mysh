@@ -89,11 +89,11 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 		stat_loc_internal = func(cmd);
 	} else if ((pid = fork()) == 0) {
 		set_process_redirs(cmd);
-		execvp(cmd->file, cmd->argv);
+		execvp(cmd->argv[0], cmd->argv);
 
 		/* if exec was successful we shouldn't ever get here */
 		int exit_code = (errno == ENOENT) ? UNKNOWN_CMD_ERR : SHELL_ERR;
-		err(exit_code, "%s", cmd->file);
+		err(exit_code, "%s", cmd->argv[0]);
 	} else if (pid == -1) {
 		warn("fork");
 		stat_loc_internal = SHELL_ERR;

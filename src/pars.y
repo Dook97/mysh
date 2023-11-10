@@ -16,16 +16,18 @@ extern int sh_exit;
 	char		*string;
 	cmd_t		*command;
 	pipecmd_t	*pipecmd;
-	enum redir_type redirect;
+	redir_t		*redirect;
+	enum redir_type redir_type;
 }
 
-%token	<numeric>	FILE_DESCRIPTOR				/* file descriptor */
+%token	<numeric>	FILE_DESCRIPTOR			/* file descriptor */
 %token	<string>	IDENTIFIER			/* commands, options, arguments */
-%token	<redirect>	REDIR FDREDIR			/* <, >, <&, >&, >> */
+%token	<redir_type>	REDIR FDREDIR			/* <, >, <&, >&, >> */
 %token			NEWLINE SEMICOLON PIPE
 
 %type	<command>	command redir_only_command
 %type	<pipecmd>	piped_command
+%type	<redirect>	redir
 
 /* free memory in case of a parsing error */
 %destructor { free($$); }		<string>
@@ -63,17 +65,17 @@ piped_command: command					{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
 command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }
 	| redir_only_command IDENTIFIER			{ $$ = $1; cmd_append($1, $2); }
 	| command IDENTIFIER				{ $$ = $1; cmd_append($1, $2); }
-	| command redir					{ $$ = $1; }
+	| command redir					{ $$ = $1; redir_append($1, $2); }
 	;
 
-redir_only_command: redir				{ $$ = make_cmd(); }
-	| redir_only_command redir			{ $$ = $1; }
+redir_only_command: redir				{ $$ = make_cmd(); redir_append($$, $1); }
+	| redir_only_command redir			{ $$ = $1; redir_append($1, $2); }
 	;
 
-redir: FILE_DESCRIPTOR REDIR IDENTIFIER
-	| FILE_DESCRIPTOR FDREDIR IDENTIFIER
-	| REDIR IDENTIFIER
-	| FDREDIR IDENTIFIER
+redir: FILE_DESCRIPTOR REDIR IDENTIFIER			{ $$ = make_redir($2, $1, NULL, $3); }
+	| FILE_DESCRIPTOR FDREDIR IDENTIFIER		{ $$ = make_redir($2, $1, $3, NULL); }
+	| REDIR IDENTIFIER				{ $$ = make_redir($1, -1, NULL, $2); }
+	| FDREDIR IDENTIFIER				{ $$ = make_redir($1, -1, $2, NULL); }
 	;
 
 %%

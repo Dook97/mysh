@@ -18,11 +18,11 @@ IDENTIFIER_CHAR		([!-~]{-}[#;<>|])
 "|"				{ return PIPE; }
 \n				{ return NEWLINE; }
 {NUMBER}/([<>]&?|>>)		{ yylval.numeric = strtol(yytext, NULL, 10); return FILE_DESCRIPTOR; }
-"<"				{ yylval.redirect = REDIR_IN; return REDIR; }
-">"				{ yylval.redirect = REDIR_OUT; return REDIR; }
-"<&"				{ yylval.redirect = FDREDIR_IN; return FDREDIR; }
-">&"				{ yylval.redirect = FDREDIR_OUT; return FDREDIR; }
-">>"				{ yylval.redirect = REDIR_APPEND; return REDIR; }
+"<"				{ yylval.redir_type = REDIR_IN; return REDIR; }
+">"				{ yylval.redir_type = REDIR_OUT; return REDIR; }
+"<&"				{ yylval.redir_type = FDREDIR_IN; return FDREDIR; }
+">&"				{ yylval.redir_type = FDREDIR_OUT; return FDREDIR; }
+">>"				{ yylval.redir_type = REDIR_APPEND; return REDIR; }
 "#"[^\n]*			{ /* ignore comments */ }
 {BLANK_CHAR}+			{ /* ignore whitespace */ }
 {IDENTIFIER_CHAR}+		{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }

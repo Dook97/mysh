@@ -6,11 +6,11 @@
 #include <unistd.h>
 
 enum redir_type {
-	REDIR_IN, // [0-9]*< FILE
-	REDIR_OUT, // [0-9]*> FILE
-	REDIR_APPEND, // [0-9]*>> FILE
-	FDREDIR_IN, // [0-9]*<&[0-9]+
-	FDREDIR_OUT, // [0-9]*>&[0-9]+
+	REDIR_IN,	// [0-9]*< FILE
+	REDIR_OUT,	// [0-9]*> FILE
+	REDIR_APPEND,	// [0-9]*>> FILE
+	FDREDIR_IN,	// [0-9]*<&[0-9]+
+	FDREDIR_OUT,	// [0-9]*>&[0-9]+
 };
 
 typedef struct redir {
@@ -39,11 +39,8 @@ typedef struct cmd_head cmd_head_t;
 
 /* a type representing a simple (non-piped) command */
 typedef struct cmd {
-	char *file;
-	char *in, *out; /* redirections */ // TODO: get rid of this
 	char **argv; /* NULL terminated arr */
 	size_t argc;
-	bool append; /* set on ">>" redirection */ // TODO: get rid of this
 
 	/* if the command is a part of a pipe these are the pipe's file descriptors. The default
 	 * value, meaning no fd was assigned (yet), is -1.
@@ -71,28 +68,31 @@ typedef struct pipecmd {
 	pipe_head_t toklist;
 } pipecmd_t;
 
-/* Safely allocate and initialize a new command. */
+/* safely allocate and initialize a new command */
 cmd_t *make_cmd(void);
 
-/* Safely allocate and initialize a new piped command. */
+/* safely allocate and initialize a new piped command */
 pipecmd_t *make_pipecmd(void);
 
-/* Deallocates cmd_t and everything within it that needs deallocating. */
+/* safely allocate and initialize a new redirect */
+redir_t *make_redir(enum redir_type type, int leftfd, char *rightfd, char *file);
+
+/* Deallocates cmd_t and everything within it that needs deallocating */
 void free_cmd(cmd_t *cmd);
 
-/* Deep-deallocate a pipecmd_t object. */
+/* Deep-deallocate a pipecmd_t object */
 void free_pipecmd(pipecmd_t *pipecmd);
 
-/* Append a token to a command. */
+/* Append a token to a command */
 void cmd_append(cmd_t *cmd, char *content);
 
-/* Append a simple command to a piped command. */
+/* Append a simple command to a piped command */
 void pipecmd_append(pipecmd_t *pipecmd, cmd_t *content);
 
-/* Set command redirections (<, >, >>). */
-void cmd_redir(cmd_t *cmd, enum redir_type r, char *file);
+/* Append a redirect to a list of redirects */
+void redir_append(cmd_t *cmd, redir_t *content);
 
-/* Once all tokens are appended this function prepares pipecmd_t for execution. */
+/* Once all tokens are appended this function prepares pipecmd_t for execution */
 void pipecmd_finalize(pipecmd_t *pipecmd);
 
 #endif
