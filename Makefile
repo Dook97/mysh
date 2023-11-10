@@ -6,14 +6,16 @@ LDFLAGS = -lreadline
 
 all: mysh
 
-mysh: src/*.c include/*.h lex.yy.c pars.tab.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $(CUFLAGS) -o $@ $$(find -type f -name '*.c')
+mysh: src/*.c include/*.h src/lex.yy.c src/pars.tab.c include/pars.tab.h
+	$(CC) $(CFLAGS) $(LDFLAGS) $(CUFLAGS) -o $@ src/*.c
 
-lex.yy.c: src/lex.l pars.tab.h
-	flex src/lex.l
+src/lex.yy.c: src/lex.l include/pars.tab.h
+	flex -o $@ $<
 
-pars.tab.c pars.tab.h: src/pars.y
+src/pars.tab.c include/pars.tab.h: src/pars.y
 	bison -d $^
+	mv pars.tab.c src/
+	mv pars.tab.h include/
 
 clean:
-	rm -f *.o mysh lex.yy.c pars.tab.c pars.tab.h
+	rm -f mysh src/lex.yy.c src/pars.tab.c include/pars.tab.h
