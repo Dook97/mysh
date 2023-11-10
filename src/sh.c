@@ -1,13 +1,15 @@
 #include "magic.h"
 #include "utils.h"
 #include <err.h>
-#include <linux/limits.h>
+#include <limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <readline/history.h>
 #include <readline/readline.h>
+
+/* these two are defined in ./src/lex.l */
 
 /* run shell over an in-memory string */
 int shell_str(const char *str);
