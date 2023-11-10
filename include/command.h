@@ -43,7 +43,7 @@ typedef struct cmd {
 	size_t argc;
 
 	/* if the command is a part of a pipe these are the pipe's file descriptors. The default
-	 * value, meaning no fd was assigned (yet), is -1.
+	 * value, meaning no fd was assigned (yet), is FD_INVALID.
 	 */
 	int pipefd_in, pipefd_out;
 

@@ -1,4 +1,5 @@
 #include "command.h"
+#include "magic.h"
 #include "utils.h"
 #include <stdlib.h>
 #include <string.h>
@@ -36,11 +37,12 @@ cmd_t *make_cmd(void) {
 	*cmd = (cmd_t){
 		.argv = NULL, /* to enable safe free()-ing in case of parser error */
 		.argc = 0,
-		.pipefd_in = -1,
-		.pipefd_out = -1,
+		.pipefd_in = FD_INVALID,
+		.pipefd_out = FD_INVALID,
 	};
 
 	STAILQ_INIT(&cmd->toklist);
+	STAILQ_INIT(&cmd->redirlist);
 	return cmd;
 }
 
@@ -54,18 +56,18 @@ pipecmd_t *make_pipecmd(void) {
 
 redir_t *make_redir(enum redir_type type, int left_fd, char *str_right_fd, char *file) {
 	if (left_fd < 0)
-		left_fd = (type == REDIR_IN || type == FDREDIR_IN) ? 0 : 1;
+		left_fd = (type == REDIR_IN || type == FDREDIR_IN) ? FD_STDIN : FD_STDOUT;
 
 	int right_fd;
 	if (str_right_fd == NULL) {
-		right_fd = -1;
+		right_fd = FD_INVALID;
 	} else {
 		char *endptr = NULL;
 		right_fd = strtol(str_right_fd, &endptr, 10);
 
 		/* *endptr == '\0' iff entire string is valid for conversion to a number */
 		if (*endptr != '\0')
-			right_fd = -1;
+			right_fd = FD_INVALID;
 	}
 
 	redir_t *out = safe_malloc(sizeof(redir_t));

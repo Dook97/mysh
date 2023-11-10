@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdio.h>
+#include <sys/queue.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -14,18 +15,34 @@
 extern int sh_exit;
 
 /* helper for set_process_redirs */
-static void fd_replace(const char *file, int replaced, int replacement, int flags, int perms) {
-	if (file != NULL) {
-		if (replacement != -1 && close(replacement) == -1)
-			err(SHELL_ERR, "close");
-		replacement = safe_open(file, flags, perms);
-	}
+static void handle_redir(redir_t *redir) {
+	int flags = O_WRONLY | O_CREAT | (redir->type == REDIR_APPEND ? O_APPEND : O_TRUNC);
 
-	if (replacement != -1) {
-		if (dup2(replacement, replaced) == -1)
+	int file_fd = -1;
+	switch (redir->type) {
+	case REDIR_IN:
+		flags = O_RDONLY;
+		__attribute__((fallthrough));
+	case REDIR_OUT:
+	case REDIR_APPEND:
+		if (redir->file == NULL)
+			errx(SHELL_ERR, "internal shell error: invalid file");
+		if (redir->left_fd < 0)
+			errx(USER_ERR, "bad fd number");
+		file_fd = safe_open(redir->file, flags, OPEN_PERMS);
+		if (dup2(file_fd, redir->left_fd) == -1)
 			err(SHELL_ERR, "dup2");
-		if (replacement != replaced && close(replacement) == -1)
-			err(SHELL_ERR, "close");
+		close(file_fd);
+		break;
+	case FDREDIR_IN:
+	case FDREDIR_OUT:
+		if (redir->left_fd < 0)
+			errx(SHELL_ERR, "internal shell error: bad file descriptor");
+		if (redir->right_fd < 0)
+			errx(USER_ERR, "bad fd number");
+		if (dup2(redir->right_fd, redir->left_fd) == -1)
+			err(SHELL_ERR, "dup2");
+		break;
 	}
 }
 
@@ -37,10 +54,18 @@ static void fd_replace(const char *file, int replaced, int replacement, int flag
  * @param cmd Pointer to a struct holding information about the desired configuration.
  */
 static void set_process_redirs(cmd_t *cmd) {
-	int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
-	fd_replace(cmd->out, FD_STDOUT, cmd->pipefd_out, flags, OPEN_PERMS);
+	if (cmd->pipefd_in != FD_INVALID)
+		if (dup2(cmd->pipefd_in, FD_STDIN) == -1)
+			err(SHELL_ERR, "dup2");
 
-	fd_replace(cmd->in, FD_STDIN, cmd->pipefd_in, O_RDONLY, 0);
+	if (cmd->pipefd_out != FD_INVALID)
+		if (dup2(cmd->pipefd_out, FD_STDOUT) == -1)
+			err(SHELL_ERR, "dup2");
+
+	redir_tok_t *i;
+	STAILQ_FOREACH(i, &cmd->redirlist, next) {
+		handle_redir(i->content);
+	}
 }
 
 /* Based on the value obtained from either exec_cmd() or wait() yield a proper exit code for the

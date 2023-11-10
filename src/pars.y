@@ -74,8 +74,8 @@ redir_only_command: redir				{ $$ = make_cmd(); redir_append($$, $1); }
 
 redir: FILE_DESCRIPTOR REDIR IDENTIFIER			{ $$ = make_redir($2, $1, NULL, $3); }
 	| FILE_DESCRIPTOR FDREDIR IDENTIFIER		{ $$ = make_redir($2, $1, $3, NULL); }
-	| REDIR IDENTIFIER				{ $$ = make_redir($1, -1, NULL, $2); }
-	| FDREDIR IDENTIFIER				{ $$ = make_redir($1, -1, $2, NULL); }
+	| REDIR IDENTIFIER				{ $$ = make_redir($1, FD_INVALID, NULL, $2); }
+	| FDREDIR IDENTIFIER				{ $$ = make_redir($1, FD_INVALID, $2, NULL); }
 	;
 
 %%
