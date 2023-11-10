@@ -5,7 +5,28 @@
 #include <sys/queue.h>
 #include <unistd.h>
 
-enum redir { REDIR_IN, REDIR_OUT, REDIR_APPEND };
+enum redir_type {
+	REDIR_IN, // [0-9]*< FILE
+	REDIR_OUT, // [0-9]*> FILE
+	REDIR_APPEND, // [0-9]*>> FILE
+	FDREDIR_IN, // [0-9]*<&[0-9]+
+	FDREDIR_OUT, // [0-9]*>&[0-9]+
+};
+
+typedef struct redir {
+	enum redir_type type;
+	int left_fd;
+	int right_fd;
+	char *file;
+} redir_t;
+
+typedef struct redir_tok {
+	redir_t *content;
+	STAILQ_ENTRY(redir_tok) next;
+} redir_tok_t;
+
+STAILQ_HEAD(redir_head, redir_tok);
+typedef struct redir_head redir_head_t;
 
 /* linked list of tokens in a command */
 typedef struct cmd_tok {
@@ -19,16 +40,17 @@ typedef struct cmd_head cmd_head_t;
 /* a type representing a simple (non-piped) command */
 typedef struct cmd {
 	char *file;
-	char *in, *out; /* redirections */
+	char *in, *out; /* redirections */ // TODO: get rid of this
 	char **argv; /* NULL terminated arr */
 	size_t argc;
-	bool append; /* set on ">>" redirection */
+	bool append; /* set on ">>" redirection */ // TODO: get rid of this
 
 	/* if the command is a part of a pipe these are the pipe's file descriptors. The default
 	 * value, meaning no fd was assigned (yet), is -1.
 	 */
 	int pipefd_in, pipefd_out;
 
+	redir_head_t redirlist;
 	cmd_head_t toklist;
 } cmd_t;
 
@@ -68,7 +90,7 @@ void cmd_append(cmd_t *cmd, char *content);
 void pipecmd_append(pipecmd_t *pipecmd, cmd_t *content);
 
 /* Set command redirections (<, >, >>). */
-void cmd_redir(cmd_t *cmd, enum redir r, char *file);
+void cmd_redir(cmd_t *cmd, enum redir_type r, char *file);
 
 /* Once all tokens are appended this function prepares pipecmd_t for execution. */
 void pipecmd_finalize(pipecmd_t *pipecmd);

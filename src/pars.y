@@ -12,14 +12,16 @@ extern int sh_exit;
 %}
 
 %union {
+	int		numeric;
 	char		*string;
 	cmd_t		*command;
 	pipecmd_t	*pipecmd;
-	enum redir	redirect;
+	enum redir_type redirect;
 }
 
+%token	<numeric>	FILE_DESCRIPTOR				/* file descriptor */
 %token	<string>	IDENTIFIER			/* commands, options, arguments */
-%token	<redirect>	REDIR				/* <, >, >> */
+%token	<redirect>	REDIR FDREDIR			/* <, >, <&, >&, >> */
 %token			NEWLINE SEMICOLON PIPE
 
 %type	<command>	command redir_only_command
@@ -61,11 +63,17 @@ piped_command: command					{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
 command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }
 	| redir_only_command IDENTIFIER			{ $$ = $1; cmd_append($1, $2); }
 	| command IDENTIFIER				{ $$ = $1; cmd_append($1, $2); }
-	| command REDIR IDENTIFIER			{ $$ = $1; cmd_redir($1, $2, $3); }
+	| command redir					{ $$ = $1; }
 	;
 
-redir_only_command: REDIR IDENTIFIER			{ $$ = make_cmd(); cmd_redir($$, $1, $2); }
-	| redir_only_command REDIR IDENTIFIER		{ $$ = $1; cmd_redir($1, $2, $3); }
+redir_only_command: redir				{ $$ = make_cmd(); }
+	| redir_only_command redir			{ $$ = $1; }
+	;
+
+redir: FILE_DESCRIPTOR REDIR IDENTIFIER
+	| FILE_DESCRIPTOR FDREDIR IDENTIFIER
+	| REDIR IDENTIFIER
+	| FDREDIR IDENTIFIER
 	;
 
 %%

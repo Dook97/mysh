@@ -1,6 +1,7 @@
 #include "command.h"
 #include "utils.h"
 #include <stdlib.h>
+#include <string.h>
 
 /* Once all tokens are appended, prepares cmd_t object for execution. */
 static void cmd_finalize(cmd_t *cmd) {
@@ -88,7 +89,7 @@ void pipecmd_append(pipecmd_t *pipecmd, cmd_t *content) {
 	++pipecmd->cmd_count;
 }
 
-void cmd_redir(cmd_t *cmd, enum redir r, char *file) {
+void cmd_redir(cmd_t *cmd, enum redir_type r, char *file) {
 	switch (r) {
 	case REDIR_IN:
 		free(cmd->in);
