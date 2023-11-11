@@ -23,6 +23,7 @@ IDENTIFIER_CHAR		([!-~]{-}[#;<>|])
 "<&"				{ yylval.redir_type = FDREDIR_IN; return REDIR; }
 ">&"				{ yylval.redir_type = FDREDIR_OUT; return REDIR; }
 ">>"				{ yylval.redir_type = REDIR_APPEND; return REDIR; }
+"<>"				{ yylval.redir_type = REDIR_OPEN; return REDIR; }
 "#"[^\n]*			{ /* ignore comments */ }
 {BLANK_CHAR}+			{ /* ignore whitespace */ }
 {IDENTIFIER_CHAR}+		{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }

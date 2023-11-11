@@ -16,14 +16,21 @@
 static void handle_redir(const redir_t *redir) {
 	int file_fd = FD_INVALID;
 	int right_fd = redir->right_fd;
-	int flags = O_WRONLY | O_CREAT | (redir->type == REDIR_APPEND ? O_APPEND : O_TRUNC);
+	int flags;
 
 	switch (redir->type) {
+	case REDIR_OPEN:
+		flags = O_RDWR | O_CREAT;
+		goto common;
 	case REDIR_IN:
 		flags = O_RDONLY;
-		__attribute__((fallthrough));
+		goto common;
 	case REDIR_OUT:
+		flags = O_WRONLY | O_CREAT | O_TRUNC;
+		goto common;
 	case REDIR_APPEND:
+		flags = O_WRONLY | O_CREAT | O_APPEND;
+common:
 		if (redir->file == NULL)
 			errx(SHELL_ERR, "internal shell error: invalid file");
 		file_fd = safe_open(redir->file, flags, OPEN_PERMS);

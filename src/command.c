@@ -55,7 +55,9 @@ pipecmd_t *make_pipecmd(void) {
 
 redir_t *make_redir(enum redir_type type, int left_fd, char *right) {
 	if (left_fd < 0)
-		left_fd = (type == REDIR_IN || type == FDREDIR_IN) ? FD_STDIN : FD_STDOUT;
+		left_fd = (type == REDIR_IN || type == FDREDIR_IN || type == REDIR_OPEN)
+				  ? FD_STDIN
+				  : FD_STDOUT;
 
 	int right_fd = FD_INVALID;
 	char *endptr = NULL;
