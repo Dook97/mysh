@@ -2,24 +2,32 @@ A simple UNIX shell
 
 ========================================================
 
-Requires flex and bison to build.
+Requires flex and bison to build. The GNU Readline
+library is required at runtime as well as compile time.
 
 Supports:
   * foreground command execution
-  * the three basic redirections <, >, >>
-      -> not supported: 2>, >&2, etc
+  * cd and exit shell builtins
+  * script execution
+      -> ./mysh script.sh
+  * standard redirections
+      -> these included: 2>/dev/null, 2>&1, 2<&1
   * the -c option
+      -> ./mysh -c "echo hello world"
   * pipes
       -> echo I hate UNIX | sed s/hate/love/ | cowsay
 
-                 _____________
-                < I love UNIX >
-                 -------------
-                        \   ^__^
-                         \  (oo)\_______
-                            (__)\       )\/\
-                                ||----w |
-                                ||     ||
+               _____________
+              < I love UNIX >
+               -------------
+                      \   ^__^
+                       \  (oo)\_______
+                          (__)\       )\/\
+                              ||----w |
+                              ||     ||
+
+Doesn't support:
+  * basically everything else :p
 
 Just to make sure: DO NOT ACTUALLY USE THIS. This was a
 project for me to learn about UNIX systems programming.

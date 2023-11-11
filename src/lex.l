@@ -3,26 +3,31 @@
 #include "pars.tab.h"
 #include "utils.h"
 #include <err.h>
+#include <stdlib.h>
 %}
 
-IDENTIFIER_CHAR ([!-~]{-}[#;<>|])
-BLANK_CHAR ([\0- ]{-}[\n])
+NUMBER			(0|[1-9][0-9]*)
+BLANK_CHAR		([\0- ]{-}[\n])
+IDENTIFIER_CHAR		([!-~]{-}[#;<>|])
 
 %option noyywrap nodefault nounput noinput yylineno
 
 %%
 
-";"			{ return SEMICOLON; }
-"|"			{ return PIPE; }
-\n			{ return NEWLINE; }
-">>"			{ yylval.redirect = REDIR_APPEND; return REDIR; }
-"<"			{ yylval.redirect = REDIR_IN; return REDIR; }
-">"			{ yylval.redirect = REDIR_OUT; return REDIR; }
-"#"[^\n]*		{ /* ignore comments */ }
-{BLANK_CHAR}+		{ /* ignore whitespace */ }
-{IDENTIFIER_CHAR}+	{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
+";"				{ return SEMICOLON; }
+"|"				{ return PIPE; }
+\n				{ return NEWLINE; }
+{NUMBER}/([<>]&?|>>)		{ yylval.numeric = strtol(yytext, NULL, 10); return FILE_DESCRIPTOR; }
+"<"				{ yylval.redir_type = REDIR_IN; return REDIR; }
+">"				{ yylval.redir_type = REDIR_OUT; return REDIR; }
+"<&"				{ yylval.redir_type = FDREDIR_IN; return FDREDIR; }
+">&"				{ yylval.redir_type = FDREDIR_OUT; return FDREDIR; }
+">>"				{ yylval.redir_type = REDIR_APPEND; return REDIR; }
+"#"[^\n]*			{ /* ignore comments */ }
+{BLANK_CHAR}+			{ /* ignore whitespace */ }
+{IDENTIFIER_CHAR}+		{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
 
-.			{ warnx("error:%d: unknown token: %s", yylineno, yytext); }
+.				{ warnx("error:%d: unknown token: %s", yylineno, yytext); }
 
 %%
 

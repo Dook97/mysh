@@ -106,9 +106,9 @@ int shell_exit(cmd_t *cmd) {
 }
 
 builtin *get_builtin(cmd_t *cmd) {
-	if (strcmp(cmd->file, "exit") == 0) {
+	if (strcmp(cmd->argv[0], "exit") == 0) {
 		return shell_exit;
-	} else if (strcmp(cmd->file, "cd") == 0) {
+	} else if (strcmp(cmd->argv[0], "cd") == 0) {
 		return shell_cd;
 	}
 	return NULL;

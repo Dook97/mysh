@@ -69,12 +69,12 @@ int close_pipe(cmd_t *cmd, bool input_pipe) {
 	int out = 0;
 	int *fd = input_pipe ? &cmd->pipefd_in : &cmd->pipefd_out;
 
-	if (*fd != -1) {
+	if (*fd != FD_INVALID) {
 		if (close(*fd) == -1) {
 			warn("close");
 			out = errno;
 		}
-		*fd = -1;
+		*fd = FD_INVALID;
 	}
 
 	return out;

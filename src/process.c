@@ -7,23 +7,35 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdio.h>
+#include <sys/queue.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 /* helper for set_process_redirs */
-static void fd_replace(const char *file, int replaced, int replacement, int flags, int perms) {
-	if (file != NULL) {
-		if (replacement != -1 && close(replacement) == -1)
-			err(SHELL_ERR, "close");
-		replacement = safe_open(file, flags, perms);
+static void handle_redir(const redir_t *redir) {
+	int file_fd = FD_INVALID;
+	int right_fd = redir->right_fd;
+	int flags = O_WRONLY | O_CREAT | (redir->type == REDIR_APPEND ? O_APPEND : O_TRUNC);
+
+	switch (redir->type) {
+	case REDIR_IN:
+		flags = O_RDONLY;
+		__attribute__((fallthrough));
+	case REDIR_OUT:
+	case REDIR_APPEND:
+		if (redir->file == NULL)
+			errx(SHELL_ERR, "internal shell error: invalid file");
+		file_fd = safe_open(redir->file, flags, OPEN_PERMS);
+		right_fd = file_fd;
+	default:
+		break;
 	}
 
-	if (replacement != -1) {
-		if (dup2(replacement, replaced) == -1)
-			err(SHELL_ERR, "dup2");
-		if (replacement != replaced && close(replacement) == -1)
-			err(SHELL_ERR, "close");
-	}
+	if (dup2(right_fd, redir->left_fd) == -1)
+		err(errno == EBADF ? USER_ERR : SHELL_ERR, "dup2");
+
+	if (file_fd != FD_INVALID)
+		close(file_fd);
 }
 
 /* Set I/O files for a process started from exec_cmd.
@@ -34,10 +46,18 @@ static void fd_replace(const char *file, int replaced, int replacement, int flag
  * @param cmd Pointer to a struct holding information about the desired configuration.
  */
 static void set_process_redirs(cmd_t *cmd) {
-	int flags = O_WRONLY | O_CREAT | (cmd->append ? O_APPEND : O_TRUNC);
-	fd_replace(cmd->out, FD_STDOUT, cmd->pipefd_out, flags, OPEN_PERMS);
+	if (cmd->pipefd_in != FD_INVALID)
+		if (dup2(cmd->pipefd_in, FD_STDIN) == -1)
+			err(SHELL_ERR, "dup2");
 
-	fd_replace(cmd->in, FD_STDIN, cmd->pipefd_in, O_RDONLY, 0);
+	if (cmd->pipefd_out != FD_INVALID)
+		if (dup2(cmd->pipefd_out, FD_STDOUT) == -1)
+			err(SHELL_ERR, "dup2");
+
+	redir_tok_t *i;
+	STAILQ_FOREACH(i, &cmd->redirlist, next) {
+		handle_redir(i->content);
+	}
 }
 
 /* Based on the value obtained from either exec_cmd() or wait() yield a proper exit code for the
@@ -86,11 +106,11 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 		stat_loc_internal = func(cmd);
 	} else if ((pid = fork()) == 0) {
 		set_process_redirs(cmd);
-		execvp(cmd->file, cmd->argv);
+		execvp(cmd->argv[0], cmd->argv);
 
 		/* if exec was successful we shouldn't ever get here */
 		int exit_code = (errno == ENOENT) ? UNKNOWN_CMD_ERR : SHELL_ERR;
-		err(exit_code, "%s", cmd->file);
+		err(exit_code, "%s", cmd->argv[0]);
 	} else if (pid == -1) {
 		warn("fork");
 		stat_loc_internal = SHELL_ERR;
