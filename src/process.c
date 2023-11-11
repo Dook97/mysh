@@ -10,9 +10,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-/* shell exit code */
-extern int sh_exit;
-
 /* helper for set_process_redirs */
 static void fd_replace(const char *file, int replaced, int replacement, int flags, int perms) {
 	if (file != NULL) {
