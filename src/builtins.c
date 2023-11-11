@@ -9,9 +9,6 @@
 #include <string.h>
 #include <unistd.h>
 
-/* shell exit code */
-extern int sh_exit;
-
 int shell_cd(cmd_t *cmd) {
 	/* we're not expecting any input, nor non-error output */
 	close_pipe(cmd, true);

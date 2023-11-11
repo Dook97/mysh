@@ -73,7 +73,7 @@ cmd_t *make_cmd(void);
 pipecmd_t *make_pipecmd(void);
 
 /* safely allocate and initialize a new redirect */
-redir_t *make_redir(enum redir_type type, int leftfd, char *rightfd, char *file);
+redir_t *make_redir(enum redir_type type, int left_fd, char *right);
 
 /* free a redir_t */
 void free_redir(redir_t *redir);

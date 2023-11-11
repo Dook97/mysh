@@ -18,7 +18,6 @@ char *safe_strdup(const char *src) {
 	char *copy = strdup(src);
 	if (copy == NULL)
 		err(SHELL_ERR, "strdup");
-
 	return copy;
 }
 

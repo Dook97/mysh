@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/queue.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -27,7 +28,14 @@ static void handle_redir(const redir_t *redir) {
 			errx(SHELL_ERR, "internal shell error: invalid file");
 		file_fd = safe_open(redir->file, flags, OPEN_PERMS);
 		right_fd = file_fd;
-	default:
+		break;
+	case FDREDIR_IN:
+	case FDREDIR_OUT:
+		/* support for <&- and >&- as required by POSIX */
+		if ((redir->file != NULL && !strcmp(redir->file, "-"))) {
+			close(redir->left_fd);
+			return;
+		}
 		break;
 	}
 

@@ -53,30 +53,24 @@ pipecmd_t *make_pipecmd(void) {
 	return pipecmd;
 }
 
-redir_t *make_redir(enum redir_type type, int left_fd, char *str_right_fd, char *file) {
+redir_t *make_redir(enum redir_type type, int left_fd, char *right) {
 	if (left_fd < 0)
 		left_fd = (type == REDIR_IN || type == FDREDIR_IN) ? FD_STDIN : FD_STDOUT;
 
-	int right_fd;
-	if (str_right_fd == NULL) {
+	int right_fd = FD_INVALID;
+	char *endptr = NULL;
+	right_fd = strtol(right, &endptr, 10);
+
+	/* *endptr == '\0' iff entire string is valid for conversion to a number */
+	if (*endptr != '\0')
 		right_fd = FD_INVALID;
-	} else {
-		char *endptr = NULL;
-		right_fd = strtol(str_right_fd, &endptr, 10);
-
-		/* *endptr == '\0' iff entire string is valid for conversion to a number */
-		if (*endptr != '\0')
-			right_fd = FD_INVALID;
-
-		free(str_right_fd);
-	}
 
 	redir_t *out = safe_malloc(sizeof(redir_t));
 	*out = (redir_t){
 		.type = type,
 		.left_fd = left_fd,
 		.right_fd = right_fd,
-		.file = file,
+		.file = right,
 	};
 
 	return out;

@@ -11,7 +11,7 @@ Supports:
   * script execution
       -> ./mysh script.sh
   * standard redirections
-      -> these included: 2>/dev/null, 2>&1, 2<&1
+      -> these included: 2>/dev/null, 2>&1, <&-, etc
   * the -c option
       -> ./mysh -c "echo hello world"
   * pipes
