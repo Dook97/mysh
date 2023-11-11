@@ -8,7 +8,7 @@
 
 NUMBER			(0|[1-9][0-9]*)
 BLANK_CHAR		([\0- ]{-}[\n])
-IDENTIFIER_CHAR		([!-~\x80-\xf7]{-}[#;<>|])
+IDENTIFIER		([!-~]{-}[<>;|#]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3})
 
 %option noyywrap nodefault nounput noinput yylineno
 
@@ -26,7 +26,7 @@ IDENTIFIER_CHAR		([!-~\x80-\xf7]{-}[#;<>|])
 "<>"				{ yylval.redir_type = REDIR_OPEN; return REDIR; }
 "#"[^\n]*			{ /* ignore comments */ }
 {BLANK_CHAR}+			{ /* ignore whitespace */ }
-{IDENTIFIER_CHAR}+		{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
+{IDENTIFIER}+			{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
 
 .				{ warnx("error:%d: unknown token: %s", yylineno, yytext); }
 
