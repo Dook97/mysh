@@ -20,7 +20,7 @@ extern int sh_exit;
 	enum redir_type redir_type;
 }
 
-%token	<numeric>	FILE_DESCRIPTOR			/* file descriptor */
+%token	<numeric>	FILE_DESCRIPTOR
 %token	<string>	IDENTIFIER			/* commands, options, arguments */
 %token	<redir_type>	REDIR FDREDIR			/* <, >, <&, >&, >> */
 %token			NEWLINE SEMICOLON PIPE
@@ -31,6 +31,7 @@ extern int sh_exit;
 
 /* free memory in case of a parsing error */
 %destructor { free($$); }		<string>
+%destructor { free_redir($$); }		<redirect>
 %destructor { free_cmd($$); }		<command>
 %destructor { free_pipecmd($$); }	<pipecmd>
 

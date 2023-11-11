@@ -77,6 +77,9 @@ pipecmd_t *make_pipecmd(void);
 /* safely allocate and initialize a new redirect */
 redir_t *make_redir(enum redir_type type, int leftfd, char *rightfd, char *file);
 
+/* free a redir_t */
+void free_redir(redir_t *redir);
+
 /* Deallocates cmd_t and everything within it that needs deallocating */
 void free_cmd(cmd_t *cmd);
 

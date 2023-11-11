@@ -68,6 +68,8 @@ redir_t *make_redir(enum redir_type type, int left_fd, char *str_right_fd, char 
 		/* *endptr == '\0' iff entire string is valid for conversion to a number */
 		if (*endptr != '\0')
 			right_fd = FD_INVALID;
+
+		free(str_right_fd);
 	}
 
 	redir_t *out = safe_malloc(sizeof(redir_t));
@@ -81,6 +83,11 @@ redir_t *make_redir(enum redir_type type, int left_fd, char *str_right_fd, char 
 	return out;
 }
 
+void free_redir(redir_t *redir) {
+	free(redir->file);
+	free(redir);
+}
+
 void free_cmd(cmd_t *cmd) {
 	cmd_tok_t *tok = STAILQ_FIRST(&cmd->toklist);
 	while (tok != NULL) {
@@ -88,6 +95,14 @@ void free_cmd(cmd_t *cmd) {
 		free(tok->content);
 		free(tok);
 		tok = next;
+	}
+
+	redir_tok_t *rtok = STAILQ_FIRST(&cmd->redirlist);
+	while (rtok != NULL) {
+		redir_tok_t *next = STAILQ_NEXT(rtok, next);
+		free_redir(rtok->content);
+		free(rtok);
+		rtok = next;
 	}
 
 	free(cmd->argv);

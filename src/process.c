@@ -16,10 +16,10 @@ extern int sh_exit;
 
 /* helper for set_process_redirs */
 static void handle_redir(const redir_t *redir) {
-	int flags = O_WRONLY | O_CREAT | (redir->type == REDIR_APPEND ? O_APPEND : O_TRUNC);
-
 	int file_fd = FD_INVALID;
 	int right_fd = redir->right_fd;
+	int flags = O_WRONLY | O_CREAT | (redir->type == REDIR_APPEND ? O_APPEND : O_TRUNC);
+
 	switch (redir->type) {
 	case REDIR_IN:
 		flags = O_RDONLY;
