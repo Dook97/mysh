@@ -31,15 +31,13 @@ static void handle_redir(const redir_t *redir) {
 	case REDIR_APPEND:
 		flags = O_WRONLY | O_CREAT | O_APPEND;
 common:
-		if (redir->file == NULL)
-			errx(SHELL_ERR, "internal shell error: invalid file");
 		file_fd = safe_open(redir->file, flags, OPEN_PERMS);
 		right_fd = file_fd;
 		break;
 	case FDREDIR_IN:
 	case FDREDIR_OUT:
 		/* support for <&- and >&- as required by POSIX */
-		if ((redir->file != NULL && !strcmp(redir->file, "-"))) {
+		if (!strcmp(redir->file, "-")) {
 			close(redir->left_fd);
 			return;
 		}
@@ -61,7 +59,7 @@ common:
  * @param cmd Pointer to a struct holding information about the desired configuration.
  */
 static void set_process_redirs(cmd_t *cmd) {
-	if ((cmd->pipefd_in != FD_INVALID && dup2(cmd->pipefd_in, FD_STDIN) == -1))
+	if (cmd->pipefd_in != FD_INVALID && dup2(cmd->pipefd_in, FD_STDIN) == -1)
 		goto error;
 	if (cmd->pipefd_out != FD_INVALID && dup2(cmd->pipefd_out, FD_STDOUT) == -1)
 		goto error;

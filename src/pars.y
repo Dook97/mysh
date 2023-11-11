@@ -22,7 +22,6 @@ extern char *yytext;
 %token	<numeric>	FILE_DESCRIPTOR
 %token	<string>	IDENTIFIER			/* commands, options, arguments */
 %token	<redir_type>	REDIR				/* <, >, <&, >&, >> */
-%token			NEWLINE SEMICOLON PIPE
 
 %type	<command>	command redir_only_command
 %type	<pipecmd>	piped_command
@@ -46,20 +45,20 @@ lines: line
 	| lines line
 	;
 
-line: command_queue NEWLINE
-	| terminated_command_queue NEWLINE
-	| NEWLINE
+line: command_queue '\n'
+	| terminated_command_queue '\n'
+	| '\n'
 	;
 
-terminated_command_queue: command_queue SEMICOLON
+terminated_command_queue: command_queue ';'
 	;
 
 command_queue: piped_command				{ exec_pipecmd($1); }
-	| command_queue SEMICOLON piped_command		{ exec_pipecmd($3); }
+	| command_queue ';' piped_command		{ exec_pipecmd($3); }
 	;
 
 piped_command: command					{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
-	| piped_command PIPE command			{ $$ = $1; pipecmd_append($1, $3); }
+	| piped_command '|' command			{ $$ = $1; pipecmd_append($1, $3); }
 	;
 
 command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }

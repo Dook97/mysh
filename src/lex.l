@@ -8,15 +8,15 @@
 
 NUMBER			(0|[1-9][0-9]*)
 BLANK_CHAR		([\0- ]{-}[\n])
-IDENTIFIER_CHAR		([!-~]{-}[#;<>|])
+IDENTIFIER_CHAR		([!-~\x80-\xf7]{-}[#;<>|])
 
 %option noyywrap nodefault nounput noinput yylineno
 
 %%
 
-";"				{ return SEMICOLON; }
-"|"				{ return PIPE; }
-\n				{ return NEWLINE; }
+";"				{ return ';'; }
+"|"				{ return '|'; }
+\n				{ return '\n'; }
 {NUMBER}/([<>]&?|>>)		{ yylval.numeric = strtol(yytext, NULL, 10); return FILE_DESCRIPTOR; }
 "<"				{ yylval.redir_type = REDIR_IN; return REDIR; }
 ">"				{ yylval.redir_type = REDIR_OUT; return REDIR; }

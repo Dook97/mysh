@@ -6,9 +6,9 @@
 #include <unistd.h>
 
 enum redir_type {
-	REDIR_IN,	// [0-9]*< FILE
-	REDIR_OUT,	// [0-9]*> FILE
-	REDIR_APPEND,	// [0-9]*>> FILE
+	REDIR_IN,	// [0-9]*<FILE
+	REDIR_OUT,	// [0-9]*>FILE
+	REDIR_APPEND,	// [0-9]*>>FILE
 	FDREDIR_IN,	// [0-9]*<&[0-9]+
 	FDREDIR_OUT,	// [0-9]*>&[0-9]+
 	REDIR_OPEN,	// [0-9]*<>FILE
