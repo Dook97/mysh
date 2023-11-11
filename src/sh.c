@@ -67,10 +67,8 @@ static void interactive(void) {
 	if (sigaction(SIGINT, &sa, NULL) == -1)
 		err(SHELL_ERR, "sigaction: failed to register SIGINT handler");
 
+	char *line, *prompt;
 	char prompt_buf[PROMPT_BUFSIZE];
-	char *prompt;
-
-	char *line = NULL;
 	while (prompt = get_prompt(prompt_buf, sizeof(prompt_buf)), (line = readline(prompt)) != NULL) {
 		if (!str_isblank(line)) {
 			add_history(line);
@@ -78,8 +76,6 @@ static void interactive(void) {
 		}
 		free(line);
 	}
-	/* ^D was pressed */
-	fprintf(stderr, "exit\n");
 	rl_clear_history();
 }
 
@@ -96,7 +92,6 @@ static void filemode(const char *path) {
 	}
 
 	shell_file(f);
-
 	fclose(f);
 }
 

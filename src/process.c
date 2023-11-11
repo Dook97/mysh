@@ -54,18 +54,23 @@ static void handle_redir(const redir_t *redir) {
  * @param cmd Pointer to a struct holding information about the desired configuration.
  */
 static void set_process_redirs(cmd_t *cmd) {
-	if (cmd->pipefd_in != FD_INVALID)
-		if (dup2(cmd->pipefd_in, FD_STDIN) == -1)
-			err(SHELL_ERR, "dup2");
+	if ((cmd->pipefd_in != FD_INVALID && dup2(cmd->pipefd_in, FD_STDIN) == -1))
+		goto error;
+	if (cmd->pipefd_out != FD_INVALID && dup2(cmd->pipefd_out, FD_STDOUT) == -1)
+		goto error;
 
-	if (cmd->pipefd_out != FD_INVALID)
-		if (dup2(cmd->pipefd_out, FD_STDOUT) == -1)
-			err(SHELL_ERR, "dup2");
+	/* don't unnecessarily leak file descriptors to the child process */
+	close_pipe(cmd, true);
+	close_pipe(cmd, false);
 
 	redir_tok_t *i;
 	STAILQ_FOREACH(i, &cmd->redirlist, next) {
 		handle_redir(i->content);
 	}
+
+	return;
+error:
+	err(SHELL_ERR, "dup2");
 }
 
 /* Based on the value obtained from either exec_cmd() or wait() yield a proper exit code for the
