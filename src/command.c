@@ -49,7 +49,6 @@ cmd_t *make_cmd(void) {
 pipecmd_t *make_pipecmd(void) {
 	pipecmd_t *pipecmd = safe_malloc(sizeof(pipecmd_t));
 	pipecmd->cmd_count = 0;
-	pipecmd->cmds = NULL; /* to enable safe free()-ing in case of parser error */
 	STAILQ_INIT(&pipecmd->toklist);
 	return pipecmd;
 }
@@ -117,7 +116,6 @@ void free_pipecmd(pipecmd_t *pipecmd) {
 		free(tok);
 		tok = next;
 	}
-	free(pipecmd->cmds);
 	free(pipecmd);
 }
 
@@ -138,8 +136,4 @@ void pipecmd_append(pipecmd_t *pipecmd, cmd_t *content) {
 void redir_append(cmd_t *cmd, redir_t *content) {
 	redir_tok_t *tok = make_redir_tok(content);
 	STAILQ_INSERT_TAIL(&cmd->redirlist, tok, next);
-}
-
-void pipecmd_finalize(pipecmd_t *pipecmd) {
-	pipecmd->cmds = STAILQ_TO_ARR(pipecmd_tok_t, &pipecmd->toklist, next, content, cmd_t *);
 }

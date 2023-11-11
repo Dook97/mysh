@@ -62,9 +62,7 @@ typedef struct pipe_head pipe_head_t;
 
 /* a type representing a piped command */
 typedef struct pipecmd {
-	cmd_t **cmds; /* NULL terminated arr */
 	size_t cmd_count;
-
 	pipe_head_t toklist;
 } pipecmd_t;
 
@@ -94,8 +92,5 @@ void pipecmd_append(pipecmd_t *pipecmd, cmd_t *content);
 
 /* Append a redirect to a list of redirects */
 void redir_append(cmd_t *cmd, redir_t *content);
-
-/* Once all tokens are appended this function prepares pipecmd_t for execution */
-void pipecmd_finalize(pipecmd_t *pipecmd);
 
 #endif

@@ -55,8 +55,8 @@ line: command_queue NEWLINE
 terminated_command_queue: command_queue SEMICOLON
 	;
 
-command_queue: piped_command				{ pipecmd_finalize($1); exec_pipecmd($1); }
-	| command_queue SEMICOLON piped_command		{ pipecmd_finalize($3); exec_pipecmd($3); }
+command_queue: piped_command				{ exec_pipecmd($1); }
+	| command_queue SEMICOLON piped_command		{ exec_pipecmd($3); }
 	;
 
 piped_command: command					{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
