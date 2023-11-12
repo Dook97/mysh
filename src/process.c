@@ -147,7 +147,7 @@ static pid_t exec_cmd(cmd_t *cmd, int *stat_loc) {
 	return pid;
 }
 
-void exec_pipecmd(pipecmd_t *pipecmd) {
+int exec_pipecmd(pipecmd_t *pipecmd) {
 	pipecmd_tok_t *pipetok;
 	STAILQ_FOREACH(pipetok, &pipecmd->toklist, next) {
 		pipecmd_tok_t *nexttok = STAILQ_NEXT(pipetok, next);
@@ -178,4 +178,6 @@ void exec_pipecmd(pipecmd_t *pipecmd) {
 	sh_exit = get_sh_exit(stat_loc, pid == 0);
 
 	free_pipecmd(pipecmd);
+
+	return sh_exit;
 }

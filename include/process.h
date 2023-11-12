@@ -6,7 +6,8 @@
 /* Execute a piped command.
  *
  * @param pipecmd Pointer to a structure representing the command.
+ * @return Exit code of the pipeline.
  */
-void exec_pipecmd(pipecmd_t *pipecmd);
+int exec_pipecmd(pipecmd_t *pipecmd);
 
 #endif

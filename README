@@ -6,20 +6,17 @@ Requires flex and bison to build. The GNU Readline
 library is required at runtime as well as compile time.
 
 Supports:
-  * foreground command execution
-  * cd and exit shell builtins
-  * script execution
-      -> ./mysh script.sh
+  * modes: interactive, file and -c option
+  * cd and exit builtins
+  * && and || operators
   * standard redirections
       -> 2>/dev/null, 2>&1, <&-, <>myfile, etc
       -> << and <<- aren't supported (yet)
-  * the -c option
-      -> ./mysh -c "echo hello world"
   * pipes
-      -> echo I hate UNIX | sed s/hate/love/ | cowsay
+      -> echo I hate UNIX | sed s/hate/❤️/ | cowsay
 
                _____________
-              < I love UNIX >
+              < I ❤️ UNIX >
                -------------
                       \   ^__^
                        \  (oo)\_______
@@ -30,9 +27,9 @@ Supports:
 Doesn't support:
   * basically everything else :p
 
-Just to make sure: DO NOT ACTUALLY USE THIS. This was a
+Just to make sure: DO NOT ACTUALLY USE THIS. This is a
 project for me to learn about UNIX systems programming.
-Creating a usable shell was a non-goal.
+Creating a usable shell is a non-goal.
 
 ========================================================
 

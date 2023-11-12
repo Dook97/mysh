@@ -6,9 +6,9 @@
 #include <stdlib.h>
 %}
 
-NUMBER			(0|[1-9][0-9]*)
-BLANK_CHAR		([\0- ]{-}[\n])
-IDENTIFIER		([!-~]{-}[<>;|#]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3})
+NUMBER		(0|[1-9][0-9]*)
+BLANK_CHAR	([\0- ]{-}[\n])
+CODEPOINT	([!-~]{-}[<>;&|#]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3})
 
 %option noyywrap nodefault nounput noinput yylineno
 
@@ -16,8 +16,10 @@ IDENTIFIER		([!-~]{-}[<>;|#]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\
 
 ";"				{ return ';'; }
 "|"				{ return '|'; }
+"&&"				{ return AND; }
+"||"				{ return OR; }
 \n				{ return '\n'; }
-{NUMBER}/([<>]&?|>>)		{ yylval.numeric = strtol(yytext, NULL, 10); return FILE_DESCRIPTOR; }
+{NUMBER}/[<>]			{ yylval.numeric = strtol(yytext, NULL, 10); return FILE_DESCRIPTOR; }
 "<"				{ yylval.redir_type = REDIR_IN; return REDIR; }
 ">"				{ yylval.redir_type = REDIR_OUT; return REDIR; }
 "<&"				{ yylval.redir_type = FDREDIR_IN; return REDIR; }
@@ -26,7 +28,7 @@ IDENTIFIER		([!-~]{-}[<>;|#]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\
 "<>"				{ yylval.redir_type = REDIR_OPEN; return REDIR; }
 "#"[^\n]*			{ /* ignore comments */ }
 {BLANK_CHAR}+			{ /* ignore whitespace */ }
-{IDENTIFIER}+			{ yylval.string = safe_strdup(yytext); return IDENTIFIER; }
+{CODEPOINT}+			{ yylval.string = safe_strdup(yytext); return WORD; }
 
 .				{ warnx("error:%d: unknown token: %s", yylineno, yytext); }
 

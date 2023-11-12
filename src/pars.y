@@ -20,12 +20,14 @@ extern char *yytext;
 }
 
 %token	<numeric>	FILE_DESCRIPTOR
-%token	<string>	IDENTIFIER			/* commands, options, arguments */
+%token	<string>	WORD				/* commands, options, arguments */
 %token	<redir_type>	REDIR				/* <, >, <&, >&, >> */
+%token			AND OR				/* &&, || */
 
 %type	<command>	command redir_only_command
 %type	<pipecmd>	piped_command
 %type	<redirect>	redir
+%type	<numeric>	and_or_list
 
 /* free memory in case of a parsing error */
 %destructor { free($$); }		<string>
@@ -36,8 +38,8 @@ extern char *yytext;
 %%
 
 all: /* empty input */
-	| terminated_command_queue
-	| command_queue
+	| terminated_command_list
+	| command_list
 	| lines
 	;
 
@@ -45,25 +47,46 @@ lines: line
 	| lines line
 	;
 
-line: command_queue '\n'
-	| terminated_command_queue '\n'
+line: command_list '\n'
+	| terminated_command_list '\n'
 	| '\n'
 	;
 
-terminated_command_queue: command_queue ';'
+terminated_command_list: command_list ';'
 	;
 
-command_queue: piped_command				{ exec_pipecmd($1); }
-	| command_queue ';' piped_command		{ exec_pipecmd($3); }
+command_list: and_or_list
+	| and_or_list ';' and_or_list
+	;
+
+and_or_list: piped_command				{ $$ = exec_pipecmd($1); }
+	| and_or_list AND piped_command
+	{
+		if ($$ == 0) {
+			$$ = exec_pipecmd($3);
+		} else {
+			free_pipecmd($3);
+			$$ = $$;
+		}
+	}
+	| and_or_list OR piped_command
+	{
+		if ($$ != 0) {
+			$$ = exec_pipecmd($3);
+		} else {
+			free_pipecmd($3);
+			$$ = $$;
+		}
+	}
 	;
 
 piped_command: command					{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
 	| piped_command '|' command			{ $$ = $1; pipecmd_append($1, $3); }
 	;
 
-command: IDENTIFIER					{ $$ = make_cmd(); cmd_append($$, $1); }
-	| redir_only_command IDENTIFIER			{ $$ = $1; cmd_append($1, $2); }
-	| command IDENTIFIER				{ $$ = $1; cmd_append($1, $2); }
+command: WORD						{ $$ = make_cmd(); cmd_append($$, $1); }
+	| redir_only_command WORD			{ $$ = $1; cmd_append($1, $2); }
+	| command WORD					{ $$ = $1; cmd_append($1, $2); }
 	| command redir					{ $$ = $1; redir_append($1, $2); }
 	;
 
@@ -71,8 +94,8 @@ redir_only_command: redir				{ $$ = make_cmd(); redir_append($$, $1); }
 	| redir_only_command redir			{ $$ = $1; redir_append($1, $2); }
 	;
 
-redir: REDIR IDENTIFIER					{ $$ = make_redir($1, FD_INVALID, $2); }
-	| FILE_DESCRIPTOR REDIR IDENTIFIER		{ $$ = make_redir($2, $1, $3); }
+redir: REDIR WORD					{ $$ = make_redir($1, FD_INVALID, $2); }
+	| FILE_DESCRIPTOR REDIR WORD			{ $$ = make_redir($2, $1, $3); }
 	;
 
 %%
