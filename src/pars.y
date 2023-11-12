@@ -59,24 +59,22 @@ command_list: and_or_list
 	| command_list ';' and_or_list
 	;
 
-and_or_list: piped_command			{ $$ = exec_pipecmd($1); }
+and_or_list: piped_command			{ $$ = exec_pipecmd($1); free_pipecmd($1); }
 	| and_or_list AND piped_command
 	{
-		if ($$ == 0) {
+		if ($$ == 0)
 			$$ = exec_pipecmd($3);
-		} else {
-			free_pipecmd($3);
+		else
 			$$ = $$;
-		}
+		free_pipecmd($3);
 	}
 	| and_or_list OR piped_command
 	{
-		if ($$ != 0) {
+		if ($$ != 0)
 			$$ = exec_pipecmd($3);
-		} else {
-			free_pipecmd($3);
+		else
 			$$ = $$;
-		}
+		free_pipecmd($3);
 	}
 	;
 

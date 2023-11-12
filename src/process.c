@@ -176,8 +176,6 @@ int exec_pipecmd(pipecmd_t *pipecmd) {
 		err(SHELL_ERR, "wait");
 
 	sh_exit = get_sh_exit(stat_loc, pid == 0);
-	int retval = pipecmd->negated ? !sh_exit : sh_exit;
-	free_pipecmd(pipecmd);
 
-	return retval;
+	return pipecmd->negated ? !sh_exit : sh_exit;
 }
