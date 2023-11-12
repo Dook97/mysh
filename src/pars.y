@@ -20,9 +20,9 @@ extern char *yytext;
 }
 
 %token	<numeric>	FILE_DESCRIPTOR
-%token	<string>	WORD				/* commands, options, arguments */
+%token	<string>	WORD
 %token	<redir_type>	REDIR				/* <, >, <&, >&, >> */
-%token			AND OR				/* &&, || */
+%token			AND OR ';' '|' '!' '\n'
 
 %type	<command>	command redir_only_command
 %type	<pipecmd>	piped_command
