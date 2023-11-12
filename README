@@ -8,7 +8,7 @@ library is required at runtime as well as compile time.
 Supports:
   * modes: interactive, file and -c option
   * cd and exit builtins
-  * && and || operators
+  * !, && and || operators
   * standard redirections
       -> 2>/dev/null, 2>&1, <&-, <>myfile, etc
       -> << and <<- aren't supported (yet)

@@ -49,6 +49,7 @@ cmd_t *make_cmd(void) {
 pipecmd_t *make_pipecmd(void) {
 	pipecmd_t *pipecmd = safe_malloc(sizeof(pipecmd_t));
 	pipecmd->cmd_count = 0;
+	pipecmd->negated = false;
 	STAILQ_INIT(&pipecmd->toklist);
 	return pipecmd;
 }

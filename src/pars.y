@@ -56,10 +56,10 @@ terminated_command_list: command_list ';'
 	;
 
 command_list: and_or_list
-	| and_or_list ';' and_or_list
+	| command_list ';' and_or_list
 	;
 
-and_or_list: piped_command				{ $$ = exec_pipecmd($1); }
+and_or_list: piped_command			{ $$ = exec_pipecmd($1); }
 	| and_or_list AND piped_command
 	{
 		if ($$ == 0) {
@@ -80,22 +80,23 @@ and_or_list: piped_command				{ $$ = exec_pipecmd($1); }
 	}
 	;
 
-piped_command: command					{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
-	| piped_command '|' command			{ $$ = $1; pipecmd_append($1, $3); }
+piped_command: command				{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
+	| '!' command				{ $$ = make_pipecmd(); $$->negated = true; pipecmd_append($$, $2); }
+	| piped_command '|' command		{ $$ = $1; pipecmd_append($1, $3); }
 	;
 
-command: WORD						{ $$ = make_cmd(); cmd_append($$, $1); }
-	| redir_only_command WORD			{ $$ = $1; cmd_append($1, $2); }
-	| command WORD					{ $$ = $1; cmd_append($1, $2); }
-	| command redir					{ $$ = $1; redir_append($1, $2); }
+command: WORD					{ $$ = make_cmd(); cmd_append($$, $1); }
+	| redir_only_command WORD		{ $$ = $1; cmd_append($1, $2); }
+	| command WORD				{ $$ = $1; cmd_append($1, $2); }
+	| command redir				{ $$ = $1; redir_append($1, $2); }
 	;
 
-redir_only_command: redir				{ $$ = make_cmd(); redir_append($$, $1); }
-	| redir_only_command redir			{ $$ = $1; redir_append($1, $2); }
+redir_only_command: redir			{ $$ = make_cmd(); redir_append($$, $1); }
+	| redir_only_command redir		{ $$ = $1; redir_append($1, $2); }
 	;
 
-redir: REDIR WORD					{ $$ = make_redir($1, FD_INVALID, $2); }
-	| FILE_DESCRIPTOR REDIR WORD			{ $$ = make_redir($2, $1, $3); }
+redir: REDIR WORD				{ $$ = make_redir($1, FD_INVALID, $2); }
+	| FILE_DESCRIPTOR REDIR WORD		{ $$ = make_redir($2, $1, $3); }
 	;
 
 %%

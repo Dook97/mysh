@@ -64,6 +64,7 @@ typedef struct pipe_head pipe_head_t;
 /* a type representing a piped command */
 typedef struct pipecmd {
 	size_t cmd_count;
+	bool negated;
 	pipe_head_t toklist;
 } pipecmd_t;
 

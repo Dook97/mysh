@@ -16,6 +16,7 @@ CODEPOINT	([!-~]{-}[<>;&|#]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\x
 
 ";"				{ return ';'; }
 "|"				{ return '|'; }
+"!"				{ return '!'; }
 "&&"				{ return AND; }
 "||"				{ return OR; }
 \n				{ return '\n'; }
