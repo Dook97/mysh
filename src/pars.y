@@ -3,6 +3,7 @@
 #include "command.h"
 #include "process.h"
 #include "magic.h"
+#include "utils.h"
 
 void yyerror(const char *err);
 int yylex(void);
@@ -28,6 +29,7 @@ extern char *yytext;
 %type	<pipecmd>	piped_command
 %type	<redirect>	redir
 %type	<numeric>	and_or_list
+%type	<string>	word
 
 /* free memory in case of a parsing error */
 %destructor { free($$); }		<string>
@@ -83,9 +85,13 @@ piped_command: command				{ $$ = make_pipecmd(); pipecmd_append($$, $1); }
 	| piped_command '|' command		{ $$ = $1; pipecmd_append($1, $3); }
 	;
 
-command: WORD					{ $$ = make_cmd(); cmd_append($$, $1); }
-	| redir_only_command WORD		{ $$ = $1; cmd_append($1, $2); }
-	| command WORD				{ $$ = $1; cmd_append($1, $2); }
+command: WORD /* use "WORD" instead of "word" here to exclude "!" */
+	{
+		$$ = make_cmd();
+		cmd_append($$, $1);
+	}
+	| redir_only_command word		{ $$ = $1; cmd_append($1, $2); }
+	| command word				{ $$ = $1; cmd_append($1, $2); }
 	| command redir				{ $$ = $1; redir_append($1, $2); }
 	;
 
@@ -93,9 +99,17 @@ redir_only_command: redir			{ $$ = make_cmd(); redir_append($$, $1); }
 	| redir_only_command redir		{ $$ = $1; redir_append($1, $2); }
 	;
 
-redir: REDIR WORD				{ $$ = make_redir($1, FD_INVALID, $2); }
-	| FILE_DESCRIPTOR REDIR WORD		{ $$ = make_redir($2, $1, $3); }
+redir: REDIR word				{ $$ = make_redir($1, FD_INVALID, $2); }
+	| FILE_DESCRIPTOR REDIR word		{ $$ = make_redir($2, $1, $3); }
 	;
+
+word: WORD					{ $$ = $1; }
+	| '!'
+	{
+		char *str = safe_malloc(sizeof(char) * 2);
+		str[0] = '!'; str[1] = '\0';
+		$$ = str;
+	}
 
 %%
 
