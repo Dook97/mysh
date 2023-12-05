@@ -175,9 +175,7 @@ int exec_pipecmd(pipecmd_t *pipecmd) {
 	if (errno != ECHILD)
 		err(SHELL_ERR, "wait");
 
-	sh_exit = get_sh_exit(stat_loc, pid == 0);
-	if (pipecmd->negated)
-		sh_exit = !sh_exit;
-
+	int temp = get_sh_exit(stat_loc, pid == 0);
+	sh_exit = pipecmd->negated ? !temp : temp;
 	return sh_exit;
 }

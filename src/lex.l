@@ -8,7 +8,7 @@
 
 NUMBER		(0|[1-9][0-9]*)
 BLANK_CHAR	([\0- ]{-}[\n])
-CODEPOINT	([!-~]{-}[<>;&|#]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3})
+CODEPOINT	([!-~\x80-\xff]{-}[<>;&|#])
 
 %option noyywrap nodefault nounput noinput yylineno
 
